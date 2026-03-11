@@ -1,6 +1,6 @@
 {
   "name": "@codemcp/skills-mcp",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "MCP server implementation for Agent Skills",
   "type": "module",
   "main": "dist/index.js",
