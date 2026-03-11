@@ -852,4 +852,247 @@ Second version of skill`;
       expect(registry.getSkill("skill-3")).toBeDefined();
     });
   });
+
+  describe("Label-based filtering", () => {
+    let tempDir1: string;
+    let tempDir2: string;
+
+    beforeEach(async () => {
+      tempDir1 = await createTempDir();
+      tempDir2 = await createTempDir();
+    });
+
+    afterEach(async () => {
+      await cleanupTempDir(tempDir1);
+      await cleanupTempDir(tempDir2);
+    });
+
+    function getSkillContentWithLabels(
+      name: string,
+      description: string,
+      labels: string[]
+    ): string {
+      const labelsYaml = labels.map((l) => `  - ${l}`).join("\n");
+      return `---
+name: ${name}
+description: ${description}
+labels:
+${labelsYaml}
+---
+
+# ${name}
+
+This is a test skill.
+`;
+    }
+
+    it("should load all skills when no requiredLabels are provided", async () => {
+      const registry = new SkillRegistry();
+
+      await createSkill(
+        tempDir1,
+        "skill-a",
+        getSkillContentWithLabels("skill-a", "Skill A", ["frontend", "react"])
+      );
+      await createSkill(
+        tempDir1,
+        "skill-b",
+        getSkillContentWithLabels("skill-b", "Skill B", ["backend"])
+      );
+
+      const result = await registry.loadSkillsFromMultiple([tempDir1]);
+
+      expect(result.loaded).toBe(2);
+      expect(registry.getSkill("skill-a")).toBeDefined();
+      expect(registry.getSkill("skill-b")).toBeDefined();
+    });
+
+    it("should filter skills by required labels", async () => {
+      const registry = new SkillRegistry();
+
+      await createSkill(
+        tempDir1,
+        "skill-a",
+        getSkillContentWithLabels("skill-a", "Skill A", ["frontend", "react"])
+      );
+      await createSkill(
+        tempDir1,
+        "skill-b",
+        getSkillContentWithLabels("skill-b", "Skill B", ["backend"])
+      );
+      await createSkill(
+        tempDir1,
+        "skill-c",
+        getBasicSkillContent("skill-c", "Skill C without labels")
+      );
+
+      const result = await registry.loadSkillsFromMultiple(
+        [tempDir1],
+        undefined,
+        new Set(["frontend"])
+      );
+
+      expect(result.loaded).toBe(1);
+      expect(registry.getSkill("skill-a")).toBeDefined();
+      expect(registry.getSkill("skill-b")).toBeUndefined();
+      expect(registry.getSkill("skill-c")).toBeUndefined();
+    });
+
+    it("should include skills matching any of the required labels (OR logic)", async () => {
+      const registry = new SkillRegistry();
+
+      await createSkill(
+        tempDir1,
+        "skill-a",
+        getSkillContentWithLabels("skill-a", "Skill A", ["frontend"])
+      );
+      await createSkill(
+        tempDir1,
+        "skill-b",
+        getSkillContentWithLabels("skill-b", "Skill B", ["backend"])
+      );
+      await createSkill(
+        tempDir1,
+        "skill-c",
+        getSkillContentWithLabels("skill-c", "Skill C", ["devops"])
+      );
+
+      const result = await registry.loadSkillsFromMultiple(
+        [tempDir1],
+        undefined,
+        new Set(["frontend", "backend"])
+      );
+
+      expect(result.loaded).toBe(2);
+      expect(registry.getSkill("skill-a")).toBeDefined();
+      expect(registry.getSkill("skill-b")).toBeDefined();
+      expect(registry.getSkill("skill-c")).toBeUndefined();
+    });
+
+    it("should exclude skills without labels when requiredLabels is set", async () => {
+      const registry = new SkillRegistry();
+
+      await createSkill(
+        tempDir1,
+        "skill-a",
+        getSkillContentWithLabels("skill-a", "Skill A", ["frontend"])
+      );
+      await createSkill(
+        tempDir1,
+        "skill-b",
+        getBasicSkillContent("skill-b", "Skill B without labels")
+      );
+
+      const result = await registry.loadSkillsFromMultiple(
+        [tempDir1],
+        undefined,
+        new Set(["frontend"])
+      );
+
+      expect(result.loaded).toBe(1);
+      expect(registry.getSkill("skill-a")).toBeDefined();
+      expect(registry.getSkill("skill-b")).toBeUndefined();
+    });
+
+    it("should combine allowedSkills and requiredLabels filtering", async () => {
+      const registry = new SkillRegistry();
+
+      await createSkill(
+        tempDir1,
+        "skill-a",
+        getSkillContentWithLabels("skill-a", "Skill A", ["frontend"])
+      );
+      await createSkill(
+        tempDir1,
+        "skill-b",
+        getSkillContentWithLabels("skill-b", "Skill B", ["frontend"])
+      );
+      await createSkill(
+        tempDir1,
+        "skill-c",
+        getSkillContentWithLabels("skill-c", "Skill C", ["backend"])
+      );
+
+      const result = await registry.loadSkillsFromMultiple(
+        [tempDir1],
+        new Set(["skill-a", "skill-c"]), // only allow a and c
+        new Set(["frontend"]) // only frontend label
+      );
+
+      // skill-a: allowed + has frontend label -> included
+      // skill-b: not allowed -> excluded by allowedSkills
+      // skill-c: allowed but has backend label -> excluded by requiredLabels
+      expect(result.loaded).toBe(1);
+      expect(registry.getSkill("skill-a")).toBeDefined();
+      expect(registry.getSkill("skill-b")).toBeUndefined();
+      expect(registry.getSkill("skill-c")).toBeUndefined();
+    });
+
+    it("should work with label filtering across multiple directories", async () => {
+      const registry = new SkillRegistry();
+
+      await createSkill(
+        tempDir1,
+        "skill-a",
+        getSkillContentWithLabels("skill-a", "Skill A", ["frontend"])
+      );
+      await createSkill(
+        tempDir2,
+        "skill-b",
+        getSkillContentWithLabels("skill-b", "Skill B", ["frontend"])
+      );
+
+      const result = await registry.loadSkillsFromMultiple(
+        [tempDir1, tempDir2],
+        undefined,
+        new Set(["frontend"])
+      );
+
+      expect(result.loaded).toBe(2);
+      expect(registry.getSkill("skill-a")).toBeDefined();
+      expect(registry.getSkill("skill-b")).toBeDefined();
+    });
+
+    it("should return empty result when no skills match the required labels", async () => {
+      const registry = new SkillRegistry();
+
+      await createSkill(
+        tempDir1,
+        "skill-a",
+        getSkillContentWithLabels("skill-a", "Skill A", ["backend"])
+      );
+
+      const result = await registry.loadSkillsFromMultiple(
+        [tempDir1],
+        undefined,
+        new Set(["frontend"])
+      );
+
+      expect(result.loaded).toBe(0);
+      expect(registry.getAllSkills()).toHaveLength(0);
+    });
+
+    it("should preserve labels in skill metadata after loading", async () => {
+      const registry = new SkillRegistry();
+
+      await createSkill(
+        tempDir1,
+        "skill-a",
+        getSkillContentWithLabels("skill-a", "Skill A", [
+          "frontend",
+          "react",
+          "typescript"
+        ])
+      );
+
+      await registry.loadSkillsFromMultiple([tempDir1]);
+
+      const skill = registry.getSkill("skill-a");
+      expect(skill?.metadata.labels).toEqual([
+        "frontend",
+        "react",
+        "typescript"
+      ]);
+    });
+  });
 });

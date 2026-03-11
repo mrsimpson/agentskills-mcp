@@ -252,6 +252,30 @@ All following agents use standard `mcpServers` JSON format.
 }
 ```
 
+## Environment Variables
+
+| Variable       | Description                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------- |
+| `SKILL_LABELS` | Comma-separated list of labels. When set, only skills with at least one matching label are loaded (OR logic). |
+
+Example MCP config with label filtering:
+
+```json
+{
+  "mcpServers": {
+    "agentskills": {
+      "command": "npx",
+      "args": ["-y", "@codemcp/skills-mcp"],
+      "env": {
+        "SKILL_LABELS": "frontend,react"
+      }
+    }
+  }
+}
+```
+
+See [Skill Format — Label Filtering](/reference/skill-format#label-filtering) for details on tagging skills with labels.
+
 ## Troubleshooting
 
 ### Config File Not Found After Setup

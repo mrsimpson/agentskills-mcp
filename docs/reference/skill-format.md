@@ -68,12 +68,13 @@ description: ...
 
 ### Standard Optional Fields
 
-| Field           | Type     | Description                          |
-| --------------- | -------- | ------------------------------------ |
-| `license`       | string   | SPDX license identifier, e.g. `MIT`  |
-| `compatibility` | string   | Agent compatibility string           |
-| `metadata`      | object   | Arbitrary key-value metadata         |
-| `allowedTools`  | string[] | Tools this skill is permitted to use |
+| Field           | Type     | Description                                                  |
+| --------------- | -------- | ------------------------------------------------------------ |
+| `license`       | string   | SPDX license identifier, e.g. `MIT`                          |
+| `compatibility` | string   | Agent compatibility string                                   |
+| `metadata`      | object   | Arbitrary key-value metadata                                 |
+| `allowedTools`  | string[] | Tools this skill is permitted to use                         |
+| `labels`        | string[] | Tags for categorising skills (used for filtering, see below) |
 
 ### Claude Code Extensions
 
@@ -118,6 +119,27 @@ Focus on:
 - Potential risks
 - Suggested review focus areas
 ```
+
+## Label Filtering
+
+Skills can be tagged with one or more labels. When the MCP server starts with the `SKILL_LABELS` environment variable set, only skills whose labels overlap with the requested set are loaded (OR logic). Skills without labels are excluded when filtering is active.
+
+```yaml
+---
+name: react-review
+description: Review React component code
+labels:
+  - frontend
+  - react
+---
+```
+
+```bash
+# Only load skills labelled "frontend" or "backend"
+SKILL_LABELS=frontend,backend npx @codemcp/skills-mcp
+```
+
+If `SKILL_LABELS` is not set, all skills are loaded regardless of their labels.
 
 ## Validation Rules
 

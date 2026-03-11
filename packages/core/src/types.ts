@@ -28,6 +28,9 @@ export interface SkillMetadata {
   model?: string;
   hooks?: Record<string, string>;
 
+  // Labels for categorization and filtering
+  labels?: string[];
+
   // MCP server dependencies
   requiresMcpServers?: McpServerDependency[];
 }

@@ -72,6 +72,17 @@
         "type": "string"
       }
     },
+    "labels": {
+      "type": "array",
+      "description": "Optional labels/tags for categorizing skills. Used with the SKILL_LABELS environment variable to filter which skills are loaded by the MCP server.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
+      },
+      "uniqueItems": true
+    },
     "requires-mcp-servers": {
       "type": "array",
       "description": "MCP servers that must be configured for this skill to work. Used by 'agentskills install --agent' for validation and auto-configuration.",

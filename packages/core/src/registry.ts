@@ -71,12 +71,14 @@ export class SkillRegistry {
    *
    * @param skillsDirs - Array of directories containing skill subdirectories
    * @param allowedSkills - Optional set of skill names to include. If provided, only these skills are loaded.
+   * @param requiredLabels - Optional set of labels. If provided, only skills that have at least one matching label are loaded.
    * @returns Load result with count, directories, and timestamp
    * @throws Error if first directory is invalid or any skill is invalid
    */
   async loadSkillsFromMultiple(
     skillsDirs: string[],
-    allowedSkills?: Set<string>
+    allowedSkills?: Set<string>,
+    requiredLabels?: Set<string>
   ): Promise<LoadResult> {
     // Clear existing skills
     this.skills.clear();
@@ -92,7 +94,8 @@ export class SkillRegistry {
       totalLoaded += await this.loadSkillsFromDirectory(
         skillsDir,
         allowedSkills,
-        isRequired
+        isRequired,
+        requiredLabels
       );
     }
 
@@ -114,13 +117,15 @@ export class SkillRegistry {
    * @param skillsDir - Directory containing skill subdirectories
    * @param allowedSkills - Optional set of skill names to include
    * @param isRequired - Whether this directory is required (first directory always is)
+   * @param requiredLabels - Optional set of labels. If provided, only skills with at least one matching label are loaded.
    * @returns Number of skills loaded from this directory
    * @throws Error if directory is invalid and required
    */
   private async loadSkillsFromDirectory(
     skillsDir: string,
     allowedSkills?: Set<string>,
-    isRequired: boolean = true
+    isRequired: boolean = true,
+    requiredLabels?: Set<string>
   ): Promise<number> {
     // 1. Check if skillsDir exists
     let stat;
@@ -213,6 +218,17 @@ export class SkillRegistry {
         throw new Error(
           `Directory name '${dirName}' does not match skill name '${skill.metadata.name}' in ${skillPath}`
         );
+      }
+
+      // Filter by required labels: skip skills that don't have at least one matching label
+      if (requiredLabels && requiredLabels.size > 0) {
+        const skillLabels = skill.metadata.labels;
+        if (
+          !skillLabels ||
+          !skillLabels.some((label) => requiredLabels.has(label))
+        ) {
+          continue;
+        }
       }
 
       // Store the skill (later directories override earlier ones)

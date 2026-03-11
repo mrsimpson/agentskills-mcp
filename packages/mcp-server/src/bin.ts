@@ -64,9 +64,24 @@ async function main() {
     // Get allowed skills from skills-lock.json (if it exists)
     const allowedSkills = await getAllowedSkillsFromAgentskills(projectDir);
 
+    // Parse SKILL_LABELS env var for label-based filtering
+    const skillLabelsEnv = process.env.SKILL_LABELS;
+    const requiredLabels = skillLabelsEnv
+      ? new Set(
+          skillLabelsEnv
+            .split(",")
+            .map((l) => l.trim())
+            .filter(Boolean)
+        )
+      : undefined;
+
     // Create registry and load skills from multiple directories with filtering
     const registry = new SkillRegistry();
-    await registry.loadSkillsFromMultiple(skillsDirs, allowedSkills);
+    await registry.loadSkillsFromMultiple(
+      skillsDirs,
+      allowedSkills,
+      requiredLabels
+    );
 
     // Log info about loaded skills
     const state = registry.getState();
