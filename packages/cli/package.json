@@ -7,16 +7,16 @@
     "access": "public"
   },
   "bin": {
-    "ade-skills": "./bin/cli.mjs"
+    "ade-skills": "./dist/cli.js"
   },
   "files": [
     "dist",
-    "bin",
     "README.md",
     "ThirdPartyNoticeText.txt"
   ],
   "scripts": {
-    "build": "obuild",
+    "build": "tsup",
+    "build:obuild": "obuild",
     "generate-licenses": "node --loader tsx scripts/generate-licenses.ts",
     "dev": "node --loader tsx src/cli.ts",
     "exec:test": "node --loader tsx scripts/execute-tests.ts",
@@ -33,18 +33,22 @@
     "tests/**/*.ts": "prettier --write"
   },
   "dependencies": {
-    "@codemcp/skills-core": "workspace:*"
+    "ajv": "^8.17.1",
+    "gray-matter": "^4.0.3",
+    "js-yaml": "^4.1.0",
+    "pacote": "21.3.1",
+    "simple-git": "^3.27.0"
   },
   "devDependencies": {
     "@clack/prompts": "^0.11.0",
+    "@codemcp/skills-core": "workspace:*",
     "@types/node": "^22.10.0",
-    "gray-matter": "^4.0.3",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "obuild": "^0.4.22",
     "picocolors": "^1.1.1",
     "prettier": "^3.8.1",
-    "simple-git": "^3.27.0",
+    "tsup": "^8.0.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.17",
     "xdg-basedir": "^5.1.0"

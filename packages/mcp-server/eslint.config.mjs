@@ -40,7 +40,9 @@ export default [
       "**/dist/**",
       ".pnpm-store/**",
       "pnpm-lock.yaml",
-      "**/*.d.ts" // Type definition files don't need runtime linting
+      "**/*.d.ts", // Type definition files don't need runtime linting
+      "tsup.config.ts", // Build config, not part of tsconfig project
+      "vitest.config.ts" // Test config, not part of tsconfig project
     ]
   }
 ];

@@ -48,7 +48,9 @@ export default [
       "pnpm-lock.yaml",
       "**/*.d.ts", // Type definition files don't need runtime linting
       "test-*.js", // Test helper scripts
-      "fix-*.js" // Fix scripts
+      "fix-*.js", // Fix scripts
+      "tsup.config.ts", // Build config, not part of tsconfig project
+      "vitest.config.ts" // Test config, not part of tsconfig project
     ]
   }
 ];
