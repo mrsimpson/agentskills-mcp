@@ -6,6 +6,11 @@
       "sourceType": "github",
       "computedHash": "fc628c7d577d2d9cf3cb0a917d3c5e2e35b460fdc62c353595b7472b6f1c6548"
     },
+    "design": {
+      "source": "/Users/oliverjaegle/projects/privat/mcp-server/agent-skills/.sabdx-skills/design",
+      "sourceType": "local",
+      "computedHash": "df0064fd73f5a6eecce4446c1a74d8b9b314891f218d1a6be79d7b8042e91051"
+    },
     "knowledge": {
       "source": "mrsimpson/agentic-knowledge-mcp",
       "sourceType": "github",

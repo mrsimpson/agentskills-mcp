@@ -41,11 +41,11 @@ OpenCode has a built-in `skill` tool that:
 
 ## How This MCP Server Works
 
-The `agentskills-mcp` server:
+The `npx @codemcp/skills-server` MCP server:
 
 1. **Loads skills explicitly** from one configured location:
    - Declared in `package.json` agentskills field
-   - Installed via `agentskills install` (like `npm install`)
+   - Installed via `npx @codemcp/skills install` (like `npm install`)
    - Default: `.agentskills/skills/`
 
 2. **Registers as an MCP tool** (`agentskills_use_skill`) with a dynamic description listing available skills
@@ -60,17 +60,17 @@ The `agentskills-mcp` server:
 
 ## Side-by-Side Comparison
 
-| Aspect                | Native (e.g. OpenCode)      | MCP Server (agentskills)                |
-| --------------------- | --------------------------- | --------------------------------------- |
-| **Discovery**         | Auto-scan filesystem        | Explicit package.json declaration       |
-| **Installation**      | Copy to `~/.claude/skills/` | `agentskills install` (like npm)        |
-| **Tool Registration** | Native client tool          | MCP protocol tool                       |
-| **Tool Name**         | `skill`                     | `agentskills_use_skill`                 |
-| **Output Format**     | XML with file listings      | JSON with basePath                      |
-| **Skill Format**      | `SKILL.md` with frontmatter | `SKILL.md` with frontmatter (identical) |
-| **Execution**         | Agent decides               | Agent decides (same)                    |
-| **Multi-client**      | Single client               | Any MCP client                          |
-| **Version Control**   | Manual (copy files)         | Declarative (package.json)              |
+| Aspect                | Native (e.g. OpenCode)      | MCP Server (npx @codemcp/skills-server)  |
+| --------------------- | --------------------------- | ---------------------------------------- |
+| **Discovery**         | Auto-scan filesystem        | Explicit package.json declaration        |
+| **Installation**      | Copy to `~/.claude/skills/` | `npx @codemcp/skills install` (like npm) |
+| **Tool Registration** | Native client tool          | MCP protocol tool                        |
+| **Tool Name**         | `skill`                     | `agentskills_use_skill`                  |
+| **Output Format**     | XML with file listings      | JSON with basePath                       |
+| **Skill Format**      | `SKILL.md` with frontmatter | `SKILL.md` with frontmatter (identical)  |
+| **Execution**         | Agent decides               | Agent decides (same)                     |
+| **Multi-client**      | Single client               | Any MCP client                           |
+| **Version Control**   | Manual (copy files)         | Declarative (package.json)               |
 
 ## Key Similarities
 

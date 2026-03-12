@@ -13,7 +13,7 @@ npm install -g @codemcp/skills
 pnpm add -g @codemcp/skills
 ```
 
-This installs the `agentskills` executable.
+This installs the `npx @codemcp/skills` executable.
 
 **Alternatively**
 
@@ -28,8 +28,8 @@ npx @codemcp/skills
 Navigate to your project directory, then add skills by name and source:
 
 ```bash
-agentskills add git-workflow github:anthropics/agent-skills/skills/git-workflow
-agentskills add code-review github:anthropics/agent-skills/skills/code-review
+npx @codemcp/skills add git-workflow github:anthropics/agent-skills/skills/git-workflow
+npx @codemcp/skills add code-review github:anthropics/agent-skills/skills/code-review
 ```
 
 The `add` command validates the skill before writing anything to `package.json`. See [Source Specifiers](/reference/source-specifiers) for all supported formats.
@@ -37,7 +37,7 @@ The `add` command validates the skill before writing anything to `package.json`.
 ## 3. Install Skills
 
 ```bash
-agentskills install
+npx @codemcp/skills install
 ```
 
 Skills are downloaded to `.agentskills/skills/` — a directory you can `.gitignore` just like `node_modules`. A lock file (`.agentskills/skills.lock`) records exact resolved versions for reproducibility.
@@ -47,7 +47,7 @@ Skills are downloaded to `.agentskills/skills/` — a directory you can `.gitign
 Use the automated MCP setup command:
 
 ```bash
-agentskills mcp setup
+npx @codemcp/skills mcp setup
 ```
 
 This interactive command will:
@@ -65,7 +65,8 @@ If you prefer to configure manually, see [Connecting Agents](/guide/mcp-clients)
 {
   "mcpServers": {
     "agentskills": {
-      "command": "npx @codemcp/skills-mcp"
+      "command": "npx",
+      "args": ["-y", "@codemcp/skills-server"]
     }
   }
 }

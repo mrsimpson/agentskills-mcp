@@ -9,8 +9,8 @@ Agent Skills MCP sits between skill authors/repos and MCP-compatible agents:
 ```mermaid
 graph TD
     A[Skill Author / GitHub Repo] -->|publishes SKILL.md| B[Skill Source]
-    B -->|agentskills install| C[.agentskills/skills/]
-    C -->|loaded at startup| D[agentskills-mcp server]
+    B -->|npx @codemcp/skills install| C[.agentskills/skills/]
+    C -->|loaded at startup| D[npx @codemcp/skills-server]
     D -->|MCP Protocol / stdio| E[Claude Desktop]
     D -->|MCP Protocol / stdio| F[Cline / Cursor / OpenCode / etc.]
 ```
@@ -26,7 +26,7 @@ package.json
   agentskills field
        │
        ▼
-agentskills install
+npx @codemcp/skills install
   │  fetches via Pacote (git, local, tarball, npm)
   │  validates SKILL.md
   ▼
@@ -37,7 +37,7 @@ agentskills install
 ### Runtime
 
 ```
-agentskills-mcp starts
+npx @codemcp/skills-server starts
   │  reads .agentskills/skills/
   │  parses each SKILL.md
   │  builds in-memory SkillRegistry

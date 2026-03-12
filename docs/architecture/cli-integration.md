@@ -110,7 +110,7 @@ This approach means:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ User runs: npx skills add owner/repo                   │
+│ User runs: npx @codemcp/skills add owner/repo           │
 └──────────────────┬──────────────────────────────────────┘
                    │
                    ├─ Source parsing

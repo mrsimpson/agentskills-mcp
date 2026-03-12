@@ -1,13 +1,13 @@
 # MCP Setup Guide
 
-The `skills mcp setup` command configures your AI agent to use the Skills MCP server. This is the easiest way to connect agents like Claude Desktop, Cline, Cursor, Kiro, OpenCode, and 36+ others.
+The `npx @codemcp/skills mcp setup` command configures your AI agent to use the Skills MCP server. This is the easiest way to connect agents like Claude Desktop, Cline, Cursor, Kiro, OpenCode, and 36+ others.
 
 ## Quick Start
 
 ### Interactive Mode (Recommended)
 
 ```bash
-agentskills mcp setup
+npx @codemcp/skills mcp setup
 ```
 
 This launches an interactive wizard that guides you through:
@@ -23,17 +23,17 @@ Configure specific agents directly:
 
 ```bash
 # Single agent
-agentskills mcp setup --agent claude-code
+npx @codemcp/skills mcp setup --agent claude-code
 
 # Multiple agents
-agentskills mcp setup --agent claude-code cline cursor
+npx @codemcp/skills mcp setup --agent claude-code cline cursor
 
 # All agents
-agentskills mcp setup --agent '*'
+npx @codemcp/skills mcp setup --agent '*'
 
 # Force specific mode
-agentskills mcp setup --agent kiro-cli --agent-config
-agentskills mcp setup --agent cline --mcp-json
+npx @codemcp/skills mcp setup --agent kiro-cli --agent-config
+npx @codemcp/skills mcp setup --agent cline --mcp-json
 ```
 
 ## Two Configuration Modes
@@ -53,7 +53,7 @@ Creates a rich, structured agent file with:
 **When to use:** When your agent supports it — cleaner, more maintainable
 
 ```bash
-agentskills mcp setup --agent kiro-cli --agent-config
+npx @codemcp/skills mcp setup --agent kiro-cli --agent-config
 ```
 
 ### MCP-JSON Mode (Universal)
@@ -67,7 +67,7 @@ Creates a standard MCP server registration JSON file.
 **When to use:** For agents without agent-config support, or when you prefer plain JSON
 
 ```bash
-agentskills mcp setup --agent claude-code --mcp-json
+npx @codemcp/skills mcp setup --agent claude-code --mcp-json
 ```
 
 ## Scope: Local vs Global
@@ -122,7 +122,7 @@ Use global scope when:
 ### Setup Claude Desktop (Interactive)
 
 ```bash
-agentskills mcp setup
+npx @codemcp/skills mcp setup
 # Choose: Local scope
 # Choose: Claude Desktop
 # System auto-selects: MCP-JSON mode (no agent-config support)
@@ -132,7 +132,7 @@ agentskills mcp setup
 ### Setup Kiro (Command Line with Agent-Config)
 
 ```bash
-agentskills mcp setup --agent kiro-cli --agent-config
+npx @codemcp/skills mcp setup --agent kiro-cli --agent-config
 # ✓ Configured: ~/.kiro/agents/skills-mcp.json
 # Next: kiro chat --agent skills-mcp
 ```
@@ -140,7 +140,7 @@ agentskills mcp setup --agent kiro-cli --agent-config
 ### Setup Multiple Agents (Global Scope)
 
 ```bash
-agentskills mcp setup --agent claude-code cline cursor --global
+npx @codemcp/skills mcp setup --agent claude-code cline cursor --global
 # ✓ Configured: ~/.claude/mcp.json
 # ✓ Configured: ~/.cline/mcp.json
 # ✓ Configured: ~/.cursor/mcp.json
@@ -149,7 +149,7 @@ agentskills mcp setup --agent claude-code cline cursor --global
 ### Setup GitHub Copilot with Agent File
 
 ```bash
-agentskills mcp setup --agent github-copilot --agent-config
+npx @codemcp/skills mcp setup --agent github-copilot --agent-config
 # ✓ Configured: ~/.vscode/mcp.json (baseline)
 # ✓ Configured: ~/.github/agents/skills-mcp.agent.md
 ```
@@ -232,7 +232,7 @@ All following agents use standard `mcpServers` JSON format.
   "servers": {
     "agentskills": {
       "command": "npx",
-      "args": ["-y", "@codemcp/skills-mcp"]
+      "args": ["-y", "@codemcp/skills-server"]
     }
   }
 }
@@ -246,7 +246,7 @@ All following agents use standard `mcpServers` JSON format.
   "mcpServers": {
     "agentskills": {
       "command": "npx",
-      "args": ["-y", "@codemcp/skills-mcp"]
+      "args": ["-y", "@codemcp/skills-server"]
     }
   }
 }
@@ -265,7 +265,7 @@ Example MCP config with label filtering:
   "mcpServers": {
     "agentskills": {
       "command": "npx",
-      "args": ["-y", "@codemcp/skills-mcp"],
+      "args": ["-y", "@codemcp/skills-server"],
       "env": {
         "SKILL_LABELS": "frontend,react"
       }
@@ -302,7 +302,7 @@ find ~ -name "mcp.json" -o -name "*.agent.md" | grep skills
 1. Verify the config file exists: `ls ~/.claude/mcp.json` (or your agent's path)
 2. Verify the JSON is valid: `cat ~/.claude/mcp.json | jq`
 3. **Restart your agent** — it caches configs on startup
-4. Check that `npx @codemcp/skills-mcp` works: `npx @codemcp/skills-mcp --help`
+4. Check that `npx @codemcp/skills-server` works: `npx @codemcp/skills-server --help`
 
 ### Wrong Configuration Mode
 
@@ -311,7 +311,7 @@ find ~ -name "mcp.json" -o -name "*.agent.md" | grep skills
 **Solution:** Run setup again with the opposite flag:
 
 ```bash
-agentskills mcp setup --agent kiro-cli --agent-config
+npx @codemcp/skills mcp setup --agent kiro-cli --agent-config
 ```
 
 ### "Agent Not Installed" Error

@@ -1,6 +1,6 @@
 # Agent Skills Demo
 
-This package demonstrates the complete workflow of using `agentskills` CLI to manage skills.
+This package demonstrates the complete workflow of using `npx @codemcp/skills` CLI to manage skills.
 
 ## Setup
 
@@ -8,7 +8,7 @@ From the monorepo root:
 
 ```bash
 # Build the CLI (uses esbuild)
-pnpm build --filter @agentskills/cli
+pnpm build --filter @codemcp/skills
 
 # Verify CLI is built
 ls -l packages/cli/dist/index.js
@@ -26,20 +26,12 @@ node ../cli/dist/index.js add example-skill file:./local-skills/example-skill
 ```
 
 This will:
-<<<<<<< HEAD
-=======
-
-> > > > > > > 5ec49a1 (feat(cli): Add skills mcp setup command for MCP server configuration)
 
 - Add `example-skill` to `package.json` under `agentskills` field
 - Install it to `.agentskills/skills/example-skill/`
 - Generate a lock file at `.agentskills/skills-lock.json`
 
 **Expected output:**
-<<<<<<< HEAD
-=======
-
-> > > > > > > 5ec49a1 (feat(cli): Add skills mcp setup command for MCP server configuration)
 
 ```
 ✓ Added example-skill to package.json
@@ -57,10 +49,6 @@ cat package.json
 ```
 
 You should see:
-<<<<<<< HEAD
-=======
-
-> > > > > > > 5ec49a1 (feat(cli): Add skills mcp setup command for MCP server configuration)
 
 ```json
 {
@@ -90,10 +78,6 @@ node ../cli/dist/index.js install
 ```
 
 **Expected output:**
-<<<<<<< HEAD
-=======
-
-> > > > > > > 5ec49a1 (feat(cli): Add skills mcp setup command for MCP server configuration)
 
 ```
 📦 Installing skills...
@@ -151,7 +135,7 @@ rm -rf .agentskills
 echo '{
   "name": "agentskills-demo",
   "version": "0.1.0",
-  "description": "Demo package showing agentskills CLI usage",
+  "description": "Demo package showing npx @codemcp/skills CLI usage",
   "private": true,
   "type": "module"
 }' > package.json

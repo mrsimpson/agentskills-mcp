@@ -207,7 +207,7 @@ function buildAgentSummaryLines(targetAgents: AgentType[], installMode: InstallM
   const { universal, symlinked } = splitAgentsByType(targetAgents);
 
   if (installMode === 'mcp-server') {
-    lines.push(`  ${pc.dim('mcp-server →')} @codemcp/skills-mcp`);
+    lines.push(`  ${pc.dim('mcp-server →')} @codemcp/skills-server`);
   } else if (installMode === 'symlink') {
     if (universal.length > 0) {
       lines.push(`  ${pc.green('universal:')} ${formatList(universal)}`);
@@ -260,7 +260,7 @@ function buildResultLines(
   if (isMcpMode) {
     // MCP Server mode - show configuration instructions
     lines.push(`  ${pc.dim('Important:')} Make sure your agent has configured`);
-    lines.push(`  ${pc.cyan('@codemcp/skills-mcp')} as MCP server.`);
+    lines.push(`  ${pc.cyan('@codemcp/skills-server')} as MCP server.`);
     lines.push(`  Then, the skill will automatically be picked up`);
   } else {
     // Split target agents by type
@@ -715,7 +715,7 @@ async function handleRemoteSkill(
     if (firstResult.mode === 'mcp-server') {
       p.log.message('');
       p.log.message(pc.dim('To use with MCP clients, add to your MCP config:'));
-      p.log.message(pc.cyan('  { "command": "npx", "args": ["-y", "@codemcp/skills-mcp"] }'));
+      p.log.message(pc.cyan('  { "command": "npx", "args": ["-y", "@codemcp/skills-server"] }'));
     }
 
     // Show symlink failure warning
@@ -1519,10 +1519,14 @@ export async function runAdd(args: string[], options: AddOptions = {}): Promise<
     );
     console.log();
     console.log(pc.dim('  Usage:'));
-    console.log(`    ${pc.cyan('npx skills add')} ${pc.yellow('<source>')} ${pc.dim('[options]')}`);
+    console.log(
+      `    ${pc.cyan('npx @codemcp/skills add')} ${pc.yellow('<source>')} ${pc.dim('[options]')}`
+    );
     console.log();
     console.log(pc.dim('  Example:'));
-    console.log(`    ${pc.cyan('npx skills add')} ${pc.yellow('vercel-labs/agent-skills')}`);
+    console.log(
+      `    ${pc.cyan('npx @codemcp/skills add')} ${pc.yellow('vercel-labs/agent-skills')}`
+    );
     console.log();
     process.exit(1);
   }
@@ -2263,13 +2267,17 @@ async function promptForFindSkills(
         });
       } catch {
         p.log.warn('Failed to install find-skills. You can try again with:');
-        p.log.message(pc.dim('  npx skills add vercel-labs/skills@find-skills -g -y --all'));
+        p.log.message(
+          pc.dim('  npx @codemcp/skills add vercel-labs/skills@find-skills -g -y --all')
+        );
       }
     } else {
       // User declined - dismiss the prompt
       await dismissPrompt('findSkillsPrompt');
       p.log.message(
-        pc.dim('You can install it later with: npx skills add vercel-labs/skills@find-skills')
+        pc.dim(
+          'You can install it later with: npx @codemcp/skills add vercel-labs/skills@find-skills'
+        )
       );
     }
   } catch {

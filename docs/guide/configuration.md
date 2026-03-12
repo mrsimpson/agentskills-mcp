@@ -34,7 +34,7 @@ Each key is the local name used to invoke the skill. Each value is a [source spe
 Commit `package.json` to your repository. Any team member (or CI agent) runs:
 
 ```bash
-agentskills install
+npx @codemcp/skills install
 ```
 
 ...and gets exactly the same skills, at the same versions, from the same sources.
@@ -64,14 +64,14 @@ Each skill is stored as:
 Skills can declare which MCP servers they require. Install with dependency validation:
 
 ```bash
-agentskills install --agent claude
+npx @codemcp/skills install --agent claude
 ```
 
 Or auto-install missing MCP servers:
 
 ```bash
-agentskills install --with-mcp --agent cline
-agentskills install --with-mcp --agent opencode  # For OpenCode
+npx @codemcp/skills install --with-mcp --agent cline
+npx @codemcp/skills install --with-mcp --agent opencode  # For OpenCode
 ```
 
 See [MCP Server Dependencies](/reference/mcp-dependencies) for how to declare these in a skill's frontmatter.

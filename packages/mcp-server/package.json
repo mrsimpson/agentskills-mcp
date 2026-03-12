@@ -1,5 +1,5 @@
 {
-  "name": "@codemcp/skills-mcp",
+  "name": "@codemcp/skills-server",
   "version": "1.8.1",
   "description": "MCP server implementation for Agent Skills",
   "type": "module",
@@ -9,7 +9,7 @@
     "access": "public"
   },
   "bin": {
-    "agentskills-mcp": "./dist/bin.js"
+    "ade-skills-server": "./dist/bin.js"
   },
   "exports": {
     ".": {
@@ -21,7 +21,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsup",
+    "build:tsc": "tsc -p tsconfig.build.json",
     "dev": "tsc -p tsconfig.build.json --watch",
     "clean:build": "rimraf dist",
     "lint": "eslint .",
@@ -34,10 +35,14 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.19.1",
-    "zod": "4.3.6",
-    "@codemcp/skills-core": "workspace:*"
+    "ajv": "^8.17.1",
+    "gray-matter": "4.0.3",
+    "js-yaml": "^4.1.0",
+    "pacote": "21.3.1",
+    "zod": "4.3.6"
   },
   "devDependencies": {
+    "@codemcp/skills-core": "workspace:*",
     "@types/node": "^22.10.7",
     "@typescript-eslint/eslint-plugin": "^8.21.0",
     "@typescript-eslint/parser": "^8.21.0",
@@ -45,6 +50,7 @@
     "eslint-config-prettier": "^10.0.1",
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
+    "tsup": "^8.0.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "8.21.0",
     "vitest": "^3.0.3"

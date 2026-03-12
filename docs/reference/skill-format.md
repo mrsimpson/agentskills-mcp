@@ -143,7 +143,7 @@ If `SKILL_LABELS` is not set, all skills are loaded regardless of their labels.
 
 ## Validation Rules
 
-Run `agentskills validate <path>` to check a skill file. Errors block installation; warnings are advisory.
+Run `npx @codemcp/skills validate <path>` to check a skill file. Errors block installation; warnings are advisory.
 
 **Errors** (must fix):
 

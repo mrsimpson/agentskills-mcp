@@ -43,23 +43,23 @@ The shared foundation. Contains no CLI or server logic — only pure processing 
 ## `@codemcp/skills`
 
 **Path:** `packages/cli/`
-**Bin:** `agentskills`
+**Bin:** `npx @codemcp/skills`
 
 A short-lived process — it initializes a fresh registry per command and exits. Uses `commander` for argument parsing.
 
-| Module                 | Command                                      |
-| ---------------------- | -------------------------------------------- |
-| `commands/add.ts`      | `agentskills add <name> <spec>`              |
-| `commands/install.ts`  | `agentskills install [--agent] [--with-mcp]` |
-| `commands/list.ts`     | `agentskills list`                           |
-| `commands/validate.ts` | `agentskills validate <path>`                |
+| Module                 | Command                                              |
+| ---------------------- | ---------------------------------------------------- |
+| `commands/add.ts`      | `npx @codemcp/skills add <name> <spec>`              |
+| `commands/install.ts`  | `npx @codemcp/skills install [--agent] [--with-mcp]` |
+| `commands/list.ts`     | `npx @codemcp/skills list`                           |
+| `commands/validate.ts` | `npx @codemcp/skills validate <path>`                |
 
 The `add` command validates before writing — the spec is fetched, the `SKILL.md` is parsed and validated, and only a clean result updates `package.json`.
 
 ## `@codemcp/skills-mcp`
 
 **Path:** `packages/mcp-server/`
-**Bin:** `agentskills-mcp`
+**Bin:** `npx @codemcp/skills-server`
 
 A long-lived process. The `MCPServer` class accepts a `SkillRegistry` via dependency injection and wires it to the `@modelcontextprotocol/sdk` over stdio transport.
 
