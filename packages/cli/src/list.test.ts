@@ -274,16 +274,16 @@ description: A test skill
 
     it('should include list examples in help', () => {
       const result = runCli(['--help']);
-      expect(result.stdout).toContain('ade-skills list');
-      expect(result.stdout).toContain('ade-skills ls -g');
-      expect(result.stdout).toContain('ade-skills ls -a claude-code');
+      expect(result.stdout).toContain('npx @codemcp/skills list');
+      expect(result.stdout).toContain('npx @codemcp/skills ls -g');
+      expect(result.stdout).toContain('npx @codemcp/skills ls -a claude-code');
     });
   });
 
   describe('banner', () => {
     it('should include list command in banner', () => {
       const result = runCli([]);
-      expect(result.stdout).toContain('ade-skills list');
+      expect(result.stdout).toContain('npx @codemcp/skills list');
       expect(result.stdout).toContain('List installed skills');
     });
   });
