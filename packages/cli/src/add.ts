@@ -1519,10 +1519,14 @@ export async function runAdd(args: string[], options: AddOptions = {}): Promise<
     );
     console.log();
     console.log(pc.dim('  Usage:'));
-    console.log(`    ${pc.cyan('ade-skills add')} ${pc.yellow('<source>')} ${pc.dim('[options]')}`);
+    console.log(
+      `    ${pc.cyan('npx @codemcp/skills add')} ${pc.yellow('<source>')} ${pc.dim('[options]')}`
+    );
     console.log();
     console.log(pc.dim('  Example:'));
-    console.log(`    ${pc.cyan('ade-skills add')} ${pc.yellow('vercel-labs/agent-skills')}`);
+    console.log(
+      `    ${pc.cyan('npx @codemcp/skills add')} ${pc.yellow('vercel-labs/agent-skills')}`
+    );
     console.log();
     process.exit(1);
   }
@@ -2263,13 +2267,17 @@ async function promptForFindSkills(
         });
       } catch {
         p.log.warn('Failed to install find-skills. You can try again with:');
-        p.log.message(pc.dim('  ade-skills add vercel-labs/skills@find-skills -g -y --all'));
+        p.log.message(
+          pc.dim('  npx @codemcp/skills add vercel-labs/skills@find-skills -g -y --all')
+        );
       }
     } else {
       // User declined - dismiss the prompt
       await dismissPrompt('findSkillsPrompt');
       p.log.message(
-        pc.dim('You can install it later with: ade-skills add vercel-labs/skills@find-skills')
+        pc.dim(
+          'You can install it later with: npx @codemcp/skills add vercel-labs/skills@find-skills'
+        )
       );
     }
   } catch {

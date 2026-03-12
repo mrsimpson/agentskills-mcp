@@ -1,6 +1,6 @@
 # Agent Skills Demo
 
-This package demonstrates the complete workflow of using `agentskills` CLI to manage skills.
+This package demonstrates the complete workflow of using `npx @codemcp/skills` CLI to manage skills.
 
 ## Setup
 
@@ -151,7 +151,7 @@ rm -rf .agentskills
 echo '{
   "name": "agentskills-demo",
   "version": "0.1.0",
-  "description": "Demo package showing agentskills CLI usage",
+  "description": "Demo package showing npx @codemcp/skills CLI usage",
   "private": true,
   "type": "module"
 }' > package.json

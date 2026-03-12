@@ -3,7 +3,7 @@
 /**
  * Executable entry point for Agent Skills MCP Server
  *
- * Usage: agentskills-mcp [project-directory]
+ * Usage: npx @codemcp/skills-server [project-directory]
  *
  * If no directory provided, uses current working directory.
  * Skills are loaded from:
@@ -47,7 +47,7 @@ async function main() {
     if (!fs.existsSync(localSkillsDir)) {
       console.error(`Skills directory not found: ${localSkillsDir}`);
       console.error(
-        `\nRun 'agentskills install' to install configured skills.`
+        `\nRun 'npx @codemcp/skills install' to install configured skills.`
       );
       process.exit(1);
     }

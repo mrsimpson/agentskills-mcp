@@ -16,9 +16,9 @@
 [Model Context Protocol (MCP)](https://modelcontextprotocol.io) has already solved tool distribution for AI agents. Agent Skills MCP uses the same mechanism — exposing skills as MCP tools — so the same solution works for every MCP-compatible agent.
 
 ```
-package.json  ──declare──▶  agentskills install  ──download──▶  .agentskills/skills/
-                                                                        │
-Agent  ◀──MCP Protocol──  agentskills-mcp server  ◀──load──────────────┘
+package.json  ──declare──▶  npx @codemcp/skills install  ──download──▶  .agentskills/skills/
+                                                                               │
+Agent  ◀──MCP Protocol──  npx @codemcp/skills-server  ◀──load─────────────────┘
 ```
 
 This gives you:
@@ -40,6 +40,6 @@ This gives you:
 
 ## What It Provides
 
-1. **CLI** (`agentskills`) — install, add, list, and validate skills
-2. **MCP Server** (`agentskills-mcp`) — exposes installed skills to any MCP agent
+1. **CLI** (`npx @codemcp/skills`) — install, add, list, and validate skills
+2. **MCP Server** (`npx @codemcp/skills-server`) — exposes installed skills to any MCP agent
 3. **Core library** (`@codemcp/skills-core`) — parsing, validation, and registry for programmatic use

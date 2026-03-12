@@ -56,8 +56,8 @@ npx @codemcp/skills
 Add skills using the CLI (validates the skill before adding it to `package.json`):
 
 ```bash
-agentskills add git-workflow github:anthropics/agent-skills/skills/git-workflow
-agentskills add local-skill file:./my-skills/custom-skill
+npx @codemcp/skills add git-workflow github:anthropics/agent-skills/skills/git-workflow
+npx @codemcp/skills add local-skill file:./my-skills/custom-skill
 ```
 
 Or edit `package.json` directly:
@@ -75,7 +75,7 @@ Or edit `package.json` directly:
 ### 3. Install Skills
 
 ```bash
-agentskills install
+npx @codemcp/skills install
 ```
 
 This downloads all configured skills to `.agentskills/skills/`.
@@ -107,13 +107,13 @@ requires-mcp-servers:
 **Install with validation:**
 
 ```bash
-agentskills install --agent claude
+npx @codemcp/skills install --agent claude
 ```
 
 **Auto-install missing servers:**
 
 ```bash
-agentskills install --with-mcp --agent cline
+npx @codemcp/skills install --with-mcp --agent cline
 ```
 
 **Supported agents:** `claude`, `cline`, `continue`, `cursor`, `junie`, `kiro`, `opencode`, `zed`
@@ -128,7 +128,8 @@ Point your MCP client (Claude Desktop, Cline, Continue, Cursor, Junie, Kiro, Ope
 {
   "mcpServers": {
     "agentskills": {
-      "command": "agentskills-mcp"
+      "command": "npx",
+      "args": ["-y", "@codemcp/skills-server"]
     }
   }
 }
@@ -165,9 +166,9 @@ The `basePath` points to the skill's directory and allows agents to resolve rela
 ## How It Works
 
 ```
-package.json (config) → agentskills install → .agentskills/skills/
+package.json (config) → npx @codemcp/skills install → .agentskills/skills/
                                                         ↓
-Agent ← MCP Protocol ← agentskills-mcp (server) ← skill registry
+Agent ← MCP Protocol ← npx @codemcp/skills-server ← skill registry
 ```
 
 1. **Configuration**: Declare skills in `package.json` like npm dependencies
@@ -234,7 +235,7 @@ Commit this to your repo, and your entire team uses the same skills configuratio
 ### Install all configured skills
 
 ```bash
-agentskills install
+npx @codemcp/skills install
 ```
 
 Options:
@@ -245,24 +246,24 @@ Options:
 ### Add a new skill
 
 ```bash
-agentskills add my-skill github:user/repo/path/to/skill
+npx @codemcp/skills add my-skill github:user/repo/path/to/skill
 ```
 
 The `add` command validates the skill configuration (spec format, presence of `SKILL.md`,
 and skill metadata) before writing anything. The skill is added to `package.json` only if
-validation succeeds. Run `agentskills install` afterwards to download and install all
+validation succeeds. Run `npx @codemcp/skills install` afterwards to download and install all
 configured skills.
 
 ### List configured skills
 
 ```bash
-agentskills list
+npx @codemcp/skills list
 ```
 
 ### Validate a skill file
 
 ```bash
-agentskills validate path/to/SKILL.md
+npx @codemcp/skills validate path/to/SKILL.md
 ```
 
 ## Creating Skills

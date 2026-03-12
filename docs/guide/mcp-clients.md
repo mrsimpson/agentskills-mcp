@@ -1,6 +1,6 @@
 # Connecting Agents
 
-The MCP server (`agentskills-mcp`) communicates over stdio. Any MCP-compatible agent needs to know how to start it.
+The MCP server (`npx @codemcp/skills-server`) communicates over stdio. Any MCP-compatible agent needs to know how to start it.
 
 ## Manual Configuration
 
@@ -10,20 +10,8 @@ Add this to your agent's MCP server configuration:
 {
   "mcpServers": {
     "agentskills": {
-      "command": "agentskills-mcp"
-    }
-  }
-}
-```
-
-If `agentskills-mcp` is not on your PATH, use the full path:
-
-```json
-{
-  "mcpServers": {
-    "agentskills": {
       "command": "npx",
-      "args": ["@codemcp/skills-mcp"]
+      "args": ["-y", "@codemcp/skills-server"]
     }
   }
 }
@@ -34,7 +22,7 @@ If `agentskills-mcp` is not on your PATH, use the full path:
 The CLI can write the configuration for you:
 
 ```bash
-agentskills install --with-mcp --agent <name>
+npx @codemcp/skills install --with-mcp --agent <name>
 ```
 
 Configs are placed in the project directory so they can be committed to version control.
@@ -63,5 +51,5 @@ When an agent connects:
 The agent calls `use_skill(skill_name: "my-skill")` and receives the raw skill instructions. Argument interpolation (e.g., `$ARGUMENTS`, `$1`) is the agent's responsibility — the server passes content through unchanged.
 
 ::: tip Restart after changes
-Skills are loaded at startup. After running `agentskills install`, restart the MCP server (usually by restarting your agent or reloading its window).
+Skills are loaded at startup. After running `npx @codemcp/skills install`, restart the MCP server (usually by restarting your agent or reloading its window).
 :::
