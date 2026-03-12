@@ -7,8 +7,7 @@
     "access": "public"
   },
   "bin": {
-    "skills": "./bin/cli.mjs",
-    "add-skill": "./bin/cli.mjs"
+    "ade-skills": "./bin/cli.mjs"
   },
   "files": [
     "dist",

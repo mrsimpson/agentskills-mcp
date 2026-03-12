@@ -1,0 +1,34 @@
+{
+  "conversationId": "agent-skills-local-skill-qoi00g",
+  "projectPath": "/Users/oliverjaegle/projects/privat/mcp-server/agent-skills",
+  "epicId": "agent-skills-8",
+  "phaseTasks": [
+    {
+      "phaseId": "reproduce",
+      "phaseName": "Reproduce",
+      "taskId": "agent-skills-8.1"
+    },
+    {
+      "phaseId": "analyze",
+      "phaseName": "Analyze",
+      "taskId": "agent-skills-8.2"
+    },
+    {
+      "phaseId": "fix",
+      "phaseName": "Fix",
+      "taskId": "agent-skills-8.3"
+    },
+    {
+      "phaseId": "verify",
+      "phaseName": "Verify",
+      "taskId": "agent-skills-8.4"
+    },
+    {
+      "phaseId": "finalize",
+      "phaseName": "Finalize",
+      "taskId": "agent-skills-8.5"
+    }
+  ],
+  "createdAt": "2026-03-04T14:47:54.733Z",
+  "updatedAt": "2026-03-04T14:47:54.733Z"
+}

@@ -211,7 +211,7 @@ describe('mcp-configurator', () => {
       const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
       expect(config.mcpServers?.agentskills).toBeDefined();
       expect(config.mcpServers.agentskills.command).toBe('npx');
-      expect(config.mcpServers.agentskills.args).toContain('@codemcp/skills-mcp');
+      expect(config.mcpServers.agentskills.args).toContain('@codemcp/skills-server');
     });
 
     it('should create MCP config for cline agent', async () => {
@@ -280,7 +280,7 @@ describe('mcp-configurator', () => {
 
       const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
       expect(config.mcpServers.agentskills.command).toBe('npx');
-      expect(config.mcpServers.agentskills.args).toContain('@codemcp/skills-mcp');
+      expect(config.mcpServers.agentskills.args).toContain('@codemcp/skills-server');
     });
 
     it('should throw error for invalid agent type', async () => {

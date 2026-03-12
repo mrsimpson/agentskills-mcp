@@ -1,5 +1,5 @@
 {
-  "name": "@codemcp/skills-mcp",
+  "name": "@codemcp/skills-server",
   "version": "1.8.1",
   "description": "MCP server implementation for Agent Skills",
   "type": "module",
@@ -9,7 +9,7 @@
     "access": "public"
   },
   "bin": {
-    "agentskills-mcp": "./dist/bin.js"
+    "ade-skills-server": "./dist/bin.js"
   },
   "exports": {
     ".": {

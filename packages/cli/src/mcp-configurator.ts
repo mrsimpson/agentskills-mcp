@@ -199,7 +199,7 @@ export async function configureAgentMcp(
   // Define the MCP server config
   const mcpServerConfig: McpServerConfig = {
     command: 'npx',
-    args: ['-y', '@codemcp/skills-mcp'],
+    args: ['-y', '@codemcp/skills-server'],
   };
 
   // Update or add agentskills server
@@ -332,7 +332,7 @@ export async function generateSkillsMcpAgent(
       'agent-skills': {
         type: 'stdio',
         command: 'npx',
-        args: ['-y', '@codemcp/skills-mcp'],
+        args: ['-y', '@codemcp/skills-server'],
         tools: ['*'],
       },
       ...extraServers,

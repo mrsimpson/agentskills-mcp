@@ -22,7 +22,7 @@ export async function runInstallFromLock(args: string[]): Promise<void> {
   if (skillEntries.length === 0) {
     p.log.warn('No project skills found in skills-lock.json');
     p.log.info(
-      `Add project-level skills with ${pc.cyan('npx skills add <package>')} (without ${pc.cyan('-g')})`
+      `Add project-level skills with ${pc.cyan('ade-skills add <package>')} (without ${pc.cyan('-g')})`
     );
     return;
   }

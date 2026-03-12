@@ -8,13 +8,10 @@ importers:
 
   .:
     dependencies:
-      '@codemcp/skills':
-        specifier: workspace:*
-        version: link:packages/cli
       '@codemcp/skills-core':
         specifier: workspace:*
         version: link:packages/core
-      '@codemcp/skills-mcp':
+      '@codemcp/skills-server':
         specifier: workspace:*
         version: link:packages/mcp-server
     devDependencies:
