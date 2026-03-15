@@ -32,7 +32,7 @@ npx @codemcp/skills add git-workflow github:anthropics/agent-skills/skills/git-w
 npx @codemcp/skills add code-review github:anthropics/agent-skills/skills/code-review
 ```
 
-The `add` command validates the skill before writing anything to `package.json`. See [Source Specifiers](/reference/source-specifiers) for all supported formats.
+The `add` command validates the skill, installs it to `.agentskills/skills/`, and records it in `skills-lock.json`. See [Source Specifiers](/reference/source-specifiers) for all supported formats.
 
 ## 3. Install Skills
 
@@ -40,7 +40,7 @@ The `add` command validates the skill before writing anything to `package.json`.
 npx @codemcp/skills install
 ```
 
-Skills are downloaded to `.agentskills/skills/` — a directory you can `.gitignore` just like `node_modules`. A lock file (`.agentskills/skills.lock`) records exact resolved versions for reproducibility.
+Skills are downloaded to `.agentskills/skills/` — a directory you can `.gitignore` just like `node_modules`. A `skills-lock.json` at the project root records each skill's source and content hash for reproducible installs. Commit it to share the same skills with your team.
 
 ## 4. Connect Your Agent
 

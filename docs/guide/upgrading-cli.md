@@ -17,16 +17,17 @@ packages/cli/
 ├── src/
 │   ├── installer.ts          ← Vercel's code + our MCP mode additions
 │   ├── add.ts                ← Vercel's code + our MCP UI additions
+│   ├── api.ts                ← Our file (new, re-exports programmatic API)
 │   ├── agents.ts             ← Vercel's code (unchanged)
 │   ├── providers/            ← Vercel's code (unchanged)
 │   └── ...                   ← Other Vercel files
 ├── bin/cli.mjs              ← Vercel's executable entry point
-└── package.json             ← Our modified dependencies
+└── package.json             ← Our modified dependencies + exports field
 ```
 
 ### Our Custom Changes
 
-We have **minimal, surgical modifications** to 2 files:
+We have **minimal, surgical modifications** to 2 files, plus 1 new file that is unaffected by upstream merges:
 
 **packages/cli/src/installer.ts:**
 
@@ -41,6 +42,12 @@ We have **minimal, surgical modifications** to 2 files:
 - Conditional installation logic: single universal agent for MCP mode
 - Post-install message showing `@codemcp/skills-mcp` configuration
 - Updated `buildAgentSummaryLines()` display logic
+
+**packages/cli/src/api.ts** (new file, never conflicts):
+
+- Re-exports `runAdd`, `runInstallFromLock`, lock-file helpers for programmatic use
+- Exposed via `"./api"` in `package.json` exports and built as a separate tsup entry
+- Upgrade note: this file is unaffected by Vercel merges — it only imports from other modules
 
 This isolation means:
 

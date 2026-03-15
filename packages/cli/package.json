@@ -9,6 +9,9 @@
   "bin": {
     "ade-skills": "./dist/cli.js"
   },
+  "exports": {
+    "./api": "./dist/api.js"
+  },
   "files": [
     "dist",
     "README.md",
