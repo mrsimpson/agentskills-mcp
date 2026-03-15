@@ -23,19 +23,6 @@ describe("MCP Server Integration - Subprocess Execution", () => {
     skillsDir = join(tempDir, ".agentskills", "skills");
     await fs.mkdir(skillsDir, { recursive: true });
 
-    // Create package.json with agentskills configuration
-    const packageJson = {
-      name: "test-project",
-      agentskills: {
-        "example-skill": "file:./local-skills/example-skill",
-        "another-skill": "file:./local-skills/another-skill"
-      }
-    };
-    await fs.writeFile(
-      join(tempDir, "package.json"),
-      JSON.stringify(packageJson, null, 2)
-    );
-
     // Create example-skill
     const exampleSkillDir = join(skillsDir, "example-skill");
     await fs.mkdir(exampleSkillDir, { recursive: true });
