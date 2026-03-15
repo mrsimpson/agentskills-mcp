@@ -19,9 +19,6 @@ export type {
   InstallError,
   InstallErrorCode,
   SkillManifest,
-  SkillLockFile,
-  SkillLockEntry,
-  PackageConfig,
   McpClientType,
   McpConfig,
   McpServerConfig,
@@ -58,7 +55,6 @@ export {
 export { parseSkill, parseSkillContent } from "./parser.js";
 export { validateSkill } from "./validator.js";
 export { SkillRegistry } from "./registry.js";
-export { PackageConfigManager } from "./package-config.js";
 export {
   loadSkillsLock,
   getAllowedSkills,

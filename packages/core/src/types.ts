@@ -199,46 +199,6 @@ export interface InstallAllResult {
 }
 
 /**
- * Lock file entry for a single skill
- */
-export interface SkillLockEntry {
-  spec: string;
-  resolvedVersion: string;
-  integrity: string;
-}
-
-/**
- * Lock file structure for reproducible installations
- */
-export interface SkillLockFile {
-  version: string;
-  generated: string;
-  skills: Record<string, SkillLockEntry>;
-}
-
-/**
- * Package configuration for agent skills
- */
-export interface PackageConfig {
-  // Declared skills to install
-  skills: Record<string, string>; // { "skill-name": "github:user/repo#v1.0.0" }
-
-  // Configuration settings
-  config: {
-    skillsDirectory: string; // Where to install (default: ".agentskills/skills")
-    autoDiscover: string[]; // Paths to auto-discover (default: [".claude/skills"])
-    maxSkillSize: number; // Token limit (default: 5000)
-    logLevel: "error" | "warn" | "info" | "debug"; // Default: "info"
-  };
-
-  // Where config was loaded from
-  source: {
-    type: "file" | "defaults";
-    path?: string;
-  };
-}
-
-/**
  * MCP (Model Context Protocol) related types
  */
 
