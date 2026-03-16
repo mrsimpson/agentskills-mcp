@@ -10,7 +10,10 @@
     "ade-skills": "./dist/cli.js"
   },
   "exports": {
-    "./api": "./dist/api.js"
+    "./api": {
+      "import": "./dist/api.js",
+      "types": "./dist/api.d.ts"
+    }
   },
   "files": [
     "dist",
@@ -36,6 +39,7 @@
     "tests/**/*.ts": "prettier --write"
   },
   "dependencies": {
+    "@codemcp/skills-core": "workspace:*",
     "ajv": "^8.17.1",
     "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.0",
@@ -44,7 +48,6 @@
   },
   "devDependencies": {
     "@clack/prompts": "^0.11.0",
-    "@codemcp/skills-core": "workspace:*",
     "@types/node": "^22.10.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",

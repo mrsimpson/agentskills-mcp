@@ -64,6 +64,5 @@
     "validator"
   ],
   "author": "Oliver Jägle <github@beimir.net>",
-  "license": "MIT",
-  "private": true
+  "license": "MIT"
 }

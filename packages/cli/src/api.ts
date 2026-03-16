@@ -25,3 +25,39 @@ export {
   type LocalSkillLockFile,
   type LocalSkillLockEntry,
 } from './local-lock.ts';
+
+// Core skill parsing, validation, and registry — re-exported so consumers
+// only need to install @codemcp/skills (not @codemcp/skills-core separately).
+export {
+  parseSkill,
+  parseSkillContent,
+  validateSkill,
+  SkillRegistry,
+  loadSkillsLock,
+  getAllowedSkills,
+  getAllowedSkillsFromProject,
+  getAllowedSkillsFromAgentskills,
+} from '@codemcp/skills-core';
+export type {
+  Skill,
+  SkillMetadata,
+  ParseResult,
+  ParseSuccess,
+  ParseFailure,
+  ParseError,
+  ParseErrorCode,
+  ValidationResult,
+  ValidationError,
+  ValidationWarning,
+  LoadResult,
+  RegistryState,
+} from '@codemcp/skills-core';
+export type {
+  InstallResult,
+  InstallSuccess,
+  InstallFailure,
+  InstallError,
+  InstallErrorCode,
+  InstallAllResult,
+  SkillManifest,
+} from '@codemcp/skills-core/install';
