@@ -1,6 +1,6 @@
 {
   "name": "@codemcp/skills-monorepo",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "private": true,
   "description": "MCP server that exposes Claude Code Agent Skills to any MCP-compatible agent",
   "authors": [
