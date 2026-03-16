@@ -21,7 +21,7 @@
     "ThirdPartyNoticeText.txt"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && node node_modules/dts-bundle-generator/dist/bin/dts-bundle-generator.js --project tsconfig.dts.json --no-check -o dist/api.d.ts src/api.ts",
     "build:obuild": "obuild",
     "generate-licenses": "node --loader tsx scripts/generate-licenses.ts",
     "dev": "node --loader tsx src/cli.ts",
@@ -39,7 +39,6 @@
     "tests/**/*.ts": "prettier --write"
   },
   "dependencies": {
-    "@codemcp/skills-core": "workspace:*",
     "ajv": "^8.17.1",
     "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.0",
@@ -48,7 +47,9 @@
   },
   "devDependencies": {
     "@clack/prompts": "^0.11.0",
+    "@codemcp/skills-core": "workspace:*",
     "@types/node": "^22.10.0",
+    "dts-bundle-generator": "^9.5.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "obuild": "^0.4.22",
