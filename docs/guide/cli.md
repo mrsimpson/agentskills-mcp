@@ -67,6 +67,18 @@ npx @codemcp/skills add local-skill file:./my-skills/custom-skill
 
 The skill is fetched, validated (format and metadata checked), and only added to `package.json` if valid. Run `npx @codemcp/skills install` afterwards to install all configured skills.
 
+### Creating a skill from scratch
+
+There is no built-in command to generate a skill from a name/description/body. To author your own skill:
+
+1. Create a directory with a `SKILL.md` file — see the [skill format reference](/reference/skill-format) for the required structure.
+2. Reference it locally:
+   ```bash
+   npx @codemcp/skills add my-skill file:./path/to/my-skill
+   ```
+
+The `file:` prefix accepts any local path. Writing the `SKILL.md` content is left to you (or to whatever generates it — a script, an agent, a template engine, etc.).
+
 ## `npx @codemcp/skills install`
 
 Download and install all skills declared in `package.json`.
