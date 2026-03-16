@@ -22,6 +22,14 @@ import {
   ListResourceTemplatesRequestSchema,
   ReadResourceRequestSchema
 } from "@modelcontextprotocol/sdk/types.js";
+import type {
+  ServerCapabilities,
+  ToolDefinition,
+  ToolCallResult,
+  ResourceDefinition,
+  ResourceTemplate,
+  ResourceReadResult
+} from "./types.js";
 
 /**
  * MCPServer - Main server class for Agent Skills MCP integration
@@ -269,7 +277,7 @@ ${skillList}
    *
    * @returns Server capabilities object
    */
-  getCapabilities(): { tools?: object; resources?: object } {
+  getCapabilities(): ServerCapabilities {
     return {
       tools: {},
       resources: {}
@@ -283,7 +291,7 @@ ${skillList}
    *
    * @returns Array of tool definitions
    */
-  getTools(): unknown[] {
+  getTools(): ToolDefinition[] {
     return [
       {
         name: "use_skill",
@@ -319,7 +327,7 @@ ${skillList}
   async callTool(
     toolName: string,
     args: Record<string, unknown>
-  ): Promise<unknown> {
+  ): Promise<ToolCallResult> {
     try {
       if (toolName === "use_skill") {
         return await this.handleUseSkillTool(args);
@@ -432,7 +440,7 @@ ${skillList}
    *
    * @returns Array of resource definitions
    */
-  getResources(): unknown[] {
+  getResources(): ResourceDefinition[] {
     return this.getResourcesList();
   }
 
@@ -444,7 +452,7 @@ ${skillList}
    *
    * @returns Array of resource template definitions
    */
-  getResourceTemplates(): unknown[] {
+  getResourceTemplates(): ResourceTemplate[] {
     return this.getResourceTemplatesList();
   }
 
@@ -457,7 +465,7 @@ ${skillList}
    * @param uri - Resource URI
    * @returns Resource content
    */
-  async readResource(uri: string): Promise<unknown> {
+  async readResource(uri: string): Promise<ResourceReadResult> {
     try {
       return await this.handleReadResource(uri);
     } catch (error) {
