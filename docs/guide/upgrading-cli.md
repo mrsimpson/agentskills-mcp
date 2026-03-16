@@ -31,17 +31,18 @@ We have **minimal, surgical modifications** to 2 files, plus 1 new file that is 
 
 **packages/cli/src/installer.ts:**
 
-- Line 22: Added `'mcp-server'` to `InstallMode` type
-- 4 new conditional blocks in handler functions (one per install method)
-- Each block: installs to canonical location, returns immediately
+- Added `'mcp-server'` to `InstallMode` type
+- Added `getMCPCanonicalSkillsDir()` function (uses `.agentskills/skills` path)
+- MCP server mode block in `installSkillForAgent()`: installs to canonical location, returns immediately
+- Same MCP server mode block in `installRemoteSkillForAgent()` and `installWellKnownSkillForAgent()`
 - No changes to existing symlink/copy logic
 
 **packages/cli/src/add.ts:**
 
-- Added MCP Server option to install method prompt
-- Conditional installation logic: single universal agent for MCP mode
-- Post-install message showing `@codemcp/skills-mcp` configuration
-- Updated `buildAgentSummaryLines()` display logic
+- MCP mode: install path hardcoded to `'mcp-server'` (bypasses symlink/copy prompt)
+- Post-install message showing `@codemcp/skills-server` MCP server configuration
+- Updated `buildAgentSummaryLines()` display logic for MCP mode
+- Updated `buildResultLines()` display logic for MCP mode
 
 **packages/cli/src/api.ts** (new file, never conflicts):
 
@@ -74,19 +75,57 @@ git fetch https://github.com/vercel-labs/skills.git main
 git log --oneline FETCH_HEAD | head -10
 ```
 
-### Step 2: Pull from Upstream
+### Step 2: Identify the Vercel Baseline
+
+Find the Vercel commit that was used when we last adopted the CLI. Check the git log for the adoption commit and note the date:
 
 ```bash
-# Navigate to project root
-cd /Users/oliverjaegle/projects/privat/mcp-server/agent-skills
+git log --all --oneline | grep -i "subtree\|vercel\|adopt"
+# e.g., 830c291 feat: adopt Vercel's skills CLI via git subtree (Feb 26, 2026)
+```
 
-# Pull latest from Vercel using git subtree
+Then find the Vercel commit around that date:
+
+```bash
+git log --oneline FETCH_HEAD --after="YYYY-MM-DD" --before="YYYY-MM-DD" | head -5
+# e.g., cc77715 v1.4.2
+```
+
+### Step 3: Pull from Upstream
+
+> ⚠️ **Note:** `git subtree pull` will fail if the subtree was not originally set up with `git subtree add`. If you see `fatal: can't squash-merge: 'packages/cli' was never added.`, use the manual approach below instead.
+
+**If git subtree works:**
+
+```bash
 git subtree pull --prefix=packages/cli https://github.com/vercel-labs/skills.git main --squash
 ```
 
-The `--squash` flag combines all Vercel commits into a single merge commit, keeping our history clean.
+**If git subtree fails (manual approach):**
 
-### Step 3: Handle Merge Conflicts (If Any)
+```bash
+# 1. Fetch the upstream
+git fetch https://github.com/vercel-labs/skills.git main
+
+# 2. Generate a diff of what changed in Vercel from your baseline to now
+git diff <baseline-commit> FETCH_HEAD --name-only   # see changed files
+git diff <baseline-commit> FETCH_HEAD -- src/<file>  # see changes in specific file
+
+# 3. For pure Vercel files (not modified by us), copy directly:
+git show FETCH_HEAD:src/agents.ts > packages/cli/src/agents.ts
+# ... repeat for each pure Vercel file that changed
+
+# 4. For our modified files (installer.ts, add.ts), apply upstream changes manually
+#    while preserving our MCP mode blocks (see Step 4 below)
+
+# 5. Handle file additions and deletions:
+#    - New files in upstream: copy with git show FETCH_HEAD:src/<new-file>
+#    - Deleted files: rm packages/cli/src/<deleted-file>
+```
+
+The pure Vercel files (no custom changes): `agents.ts`, `cli.ts`, `find.ts`, `list.ts`, `list.test.ts`, `mintlify.ts` (if present), `providers/`, `skill-lock.ts`, `skills.ts`, `source-parser.ts`, `types.ts`
+
+### Step 4: Handle Merge Conflicts (If Any)
 
 If there are no conflicts, skip to Step 4. If conflicts exist:
 
@@ -178,7 +217,9 @@ Similar approach:
    if (firstResult.mode === "mcp-server") {
      p.log.message(pc.dim("To use with MCP clients, add to your MCP config:"));
      p.log.message(
-       pc.cyan('  { "command": "npx", "args": ["-y", "@codemcp/skills-mcp"] }')
+       pc.cyan(
+         '  { "command": "npx", "args": ["-y", "@codemcp/skills-server"] }'
+       )
      );
    }
    ```
@@ -197,7 +238,7 @@ git show :3:packages/cli/src/installer.ts > their-version.ts
 git add packages/cli/src/installer.ts
 ```
 
-### Step 4: Verify the Merge
+### Step 5: Verify the Merge
 
 ```bash
 # Check that conflicts are resolved
@@ -213,7 +254,7 @@ git grep "^=======$" packages/cli/
 git grep "^>>>>>>>" packages/cli/
 ```
 
-### Step 5: Build and Test
+### Step 6: Build and Test
 
 ```bash
 # Install dependencies (in case package.json changed)
@@ -234,10 +275,10 @@ pnpm test
 
 # Run only core tests (less likely to have environmental issues)
 pnpm --filter @codemcp/skills-core test
-pnpm --filter @codemcp/skills-mcp test
+pnpm --filter @codemcp/skills-server test
 ```
 
-### Step 6: Manual Testing
+### Step 7: Manual Testing
 
 Test the MCP mode functionality to ensure it still works:
 
@@ -256,7 +297,7 @@ grep "\.agents/skills" packages/core/src/package-config.ts
 grep "\.agents/skills" packages/mcp-server/src/bin.ts
 ```
 
-### Step 7: Commit the Upgrade
+### Step 8: Commit the Upgrade
 
 ```bash
 git add packages/cli packages/pnpm-lock.yaml

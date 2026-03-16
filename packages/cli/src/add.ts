@@ -28,7 +28,6 @@ import {
   isSkillInstalled,
   getInstallPath,
   getCanonicalPath,
-  installRemoteSkillForAgent,
   installWellKnownSkillForAgent,
   type InstallMode,
 } from './installer.ts';
@@ -47,18 +46,18 @@ import {
   type SkillAuditData,
   type PartnerAudit,
 } from './telemetry.ts';
-import { findProvider, wellKnownProvider, type WellKnownSkill } from './providers/index.ts';
-import { fetchMintlifySkill } from './mintlify.ts';
+import { wellKnownProvider, type WellKnownSkill } from './providers/index.ts';
 import {
   addSkillToLock,
   fetchSkillFolderHash,
+  getGitHubToken,
   isPromptDismissed,
   dismissPrompt,
   getLastSelectedAgents,
   saveSelectedAgents,
 } from './skill-lock.ts';
 import { addSkillToLocalLock, computeSkillFolderHash } from './local-lock.ts';
-import type { Skill, AgentType, RemoteSkill } from './types.ts';
+import type { Skill, AgentType } from './types.ts';
 import packageJson from '../package.json' with { type: 'json' };
 export function initTelemetry(version: string): void {
   setVersion(version);
@@ -432,320 +431,6 @@ export interface AddOptions {
   all?: boolean;
   fullDepth?: boolean;
   copy?: boolean;
-}
-
-/**
- * Handle remote skill installation from any supported host provider.
- * This is the generic handler for direct URL skills (Mintlify, HuggingFace, etc.)
- */
-async function handleRemoteSkill(
-  source: string,
-  url: string,
-  options: AddOptions,
-  spinner: ReturnType<typeof p.spinner>
-): Promise<void> {
-  // Find a provider that can handle this URL
-  const provider = findProvider(url);
-
-  if (!provider) {
-    // Fall back to legacy Mintlify handling for backwards compatibility
-    await handleDirectUrlSkillLegacy(source, url, options, spinner);
-    return;
-  }
-
-  spinner.start(`Fetching skill.md from ${provider.displayName}...`);
-  const providerSkill = await provider.fetchSkill(url);
-
-  if (!providerSkill) {
-    spinner.stop(pc.red('Invalid skill'));
-    p.outro(
-      pc.red('Could not fetch skill.md or missing required frontmatter (name, description).')
-    );
-    process.exit(1);
-  }
-
-  // Convert to RemoteSkill format with provider info
-  const remoteSkill: RemoteSkill = {
-    name: providerSkill.name,
-    description: providerSkill.description,
-    content: providerSkill.content,
-    installName: providerSkill.installName,
-    sourceUrl: providerSkill.sourceUrl,
-    providerId: provider.id,
-    sourceIdentifier: provider.getSourceIdentifier(url),
-    metadata: providerSkill.metadata,
-  };
-
-  spinner.stop(`Found skill: ${pc.cyan(remoteSkill.installName)}`);
-
-  p.log.info(`Skill: ${pc.cyan(remoteSkill.name)}`);
-  p.log.message(pc.dim(remoteSkill.description));
-  p.log.message(pc.dim(`Source: ${remoteSkill.sourceIdentifier}`));
-
-  if (options.list) {
-    console.log();
-    p.log.step(pc.bold('Skill Details'));
-    p.log.message(`  ${pc.cyan('Name:')} ${remoteSkill.name}`);
-    p.log.message(`  ${pc.cyan('Install as:')} ${remoteSkill.installName}`);
-    p.log.message(`  ${pc.cyan('Provider:')} ${provider.displayName}`);
-    p.log.message(`  ${pc.cyan('Description:')} ${remoteSkill.description}`);
-    console.log();
-    p.outro('Run without --list to install');
-    process.exit(0);
-  }
-
-  // Detect agents - universal agents are always included
-  // MCP mode: install to canonical location, use universal agents only
-  const universalAgents = getUniversalAgents();
-  const targetAgents = universalAgents;
-
-  let installGlobally = options.global ?? false;
-
-  // Check if any selected agents support global installation
-  const supportsGlobal = targetAgents.some((a) => agents[a].globalSkillsDir !== undefined);
-
-  if (options.global === undefined && !options.yes && supportsGlobal) {
-    const scope = await p.select({
-      message: 'Installation scope',
-      options: [
-        {
-          value: false,
-          label: 'Project',
-          hint: 'Install in current directory (committed with your project)',
-        },
-        {
-          value: true,
-          label: 'Global',
-          hint: 'Install in home directory (available across all projects)',
-        },
-      ],
-    });
-
-    if (p.isCancel(scope)) {
-      p.cancel('Installation cancelled');
-      process.exit(0);
-    }
-
-    installGlobally = scope as boolean;
-  }
-
-  // MCP mode: always use MCP server installation
-  const installMode: InstallMode = 'mcp-server';
-
-  const cwd = process.cwd();
-
-  // Check for overwrites (parallel)
-  const overwriteChecks = await Promise.all(
-    targetAgents.map(async (agent) => ({
-      agent,
-      installed: await isSkillInstalled(remoteSkill.installName, agent, {
-        global: installGlobally,
-      }),
-    }))
-  );
-  const overwriteStatus = new Map(
-    overwriteChecks.map(({ agent, installed }) => [agent, installed])
-  );
-
-  // Build installation summary
-  const summaryLines: string[] = [];
-
-  const canonicalPath = getCanonicalPath(remoteSkill.installName, { global: installGlobally });
-  const shortCanonical = shortenPath(canonicalPath, cwd);
-  summaryLines.push(`${pc.cyan(shortCanonical)}`);
-  summaryLines.push(...buildAgentSummaryLines(targetAgents, installMode));
-
-  const overwriteAgents = targetAgents
-    .filter((a) => overwriteStatus.get(a))
-    .map((a) => agents[a].displayName);
-
-  if (overwriteAgents.length > 0) {
-    summaryLines.push(`  ${pc.yellow('overwrites:')} ${formatList(overwriteAgents)}`);
-  }
-
-  console.log();
-  p.note(summaryLines.join('\n'), 'Installation Summary');
-
-  if (!options.yes) {
-    const confirmed = await p.confirm({
-      message: 'Proceed with installation?',
-    });
-
-    if (p.isCancel(confirmed) || !confirmed) {
-      p.cancel('Installation cancelled');
-      process.exit(0);
-    }
-  }
-
-  spinner.start('Installing skill...');
-
-  const results: {
-    skill: string;
-    agent: string;
-    success: boolean;
-    path: string;
-    canonicalPath?: string;
-    mode: InstallMode;
-    symlinkFailed?: boolean;
-    error?: string;
-  }[] = [];
-
-  if (installMode === 'mcp-server') {
-    // MCP server mode: install once to canonical location, use universal agent
-    const result = await installRemoteSkillForAgent(remoteSkill, 'universal', {
-      global: installGlobally,
-      mode: installMode,
-    });
-    results.push({
-      skill: remoteSkill.installName,
-      agent: 'MCP Server',
-      ...result,
-    });
-  } else {
-    // Symlink and copy modes: install per-agent
-    for (const agent of targetAgents) {
-      const result = await installRemoteSkillForAgent(remoteSkill, agent, {
-        global: installGlobally,
-        mode: installMode,
-      });
-      results.push({
-        skill: remoteSkill.installName,
-        agent: agents[agent].displayName,
-        ...result,
-      });
-    }
-  }
-
-  spinner.stop('Installation complete');
-
-  console.log();
-  const successful = results.filter((r) => r.success);
-  const failed = results.filter((r) => !r.success);
-
-  // Track installation with provider-specific source identifier
-  // Skip telemetry for private GitHub repos
-  const isPrivate = await isSourcePrivate(remoteSkill.sourceIdentifier);
-  if (isPrivate !== true) {
-    // Only send telemetry if repo is public (isPrivate === false) or we can't determine (null for non-GitHub sources)
-    track({
-      event: 'install',
-      source: remoteSkill.sourceIdentifier,
-      skills: remoteSkill.installName,
-      agents: targetAgents.join(','),
-      ...(installGlobally && { global: '1' }),
-      skillFiles: JSON.stringify({ [remoteSkill.installName]: url }),
-      sourceType: remoteSkill.providerId,
-    });
-  }
-
-  // Add to skill lock file for update tracking (only for global installs)
-  if (successful.length > 0 && installGlobally) {
-    try {
-      // Try to fetch the folder hash from GitHub Trees API
-      let skillFolderHash = '';
-      if (remoteSkill.providerId === 'github') {
-        const hash = await fetchSkillFolderHash(remoteSkill.sourceIdentifier, url);
-        if (hash) skillFolderHash = hash;
-      }
-
-      await addSkillToLock(remoteSkill.installName, {
-        source: remoteSkill.sourceIdentifier,
-        sourceType: remoteSkill.providerId,
-        sourceUrl: url,
-        skillFolderHash,
-      });
-    } catch {
-      // Don't fail installation if lock file update fails
-    }
-  }
-
-  // Add to local lock file for project-scoped installs
-  if (successful.length > 0 && !installGlobally) {
-    try {
-      const firstResult = successful[0]!;
-      const installDir = firstResult.canonicalPath || firstResult.path;
-      const computedHash = await computeSkillFolderHash(installDir);
-      await addSkillToLocalLock(
-        remoteSkill.installName,
-        {
-          source: remoteSkill.sourceIdentifier,
-          sourceType: remoteSkill.providerId,
-          computedHash,
-        },
-        cwd
-      );
-    } catch {
-      // Don't fail installation if lock file update fails
-    }
-  }
-
-  if (successful.length > 0) {
-    const resultLines: string[] = [];
-    const firstResult = successful[0]!;
-
-    if (firstResult.mode === 'mcp-server') {
-      // MCP server mode
-      if (firstResult.canonicalPath) {
-        const shortPath = shortenPath(firstResult.canonicalPath, cwd);
-        resultLines.push(`${pc.green('✓')} ${shortPath}`);
-      } else {
-        resultLines.push(`${pc.green('✓')} ${remoteSkill.installName}`);
-      }
-    } else if (firstResult.mode === 'copy') {
-      resultLines.push(`${pc.green('✓')} ${remoteSkill.installName} ${pc.dim('(copied)')}`);
-      for (const r of successful) {
-        const shortPath = shortenPath(r.path, cwd);
-        resultLines.push(`  ${pc.dim('→')} ${shortPath}`);
-      }
-    } else {
-      // Symlink mode
-      if (firstResult.canonicalPath) {
-        const shortPath = shortenPath(firstResult.canonicalPath, cwd);
-        resultLines.push(`${pc.green('✓')} ${shortPath}`);
-      } else {
-        resultLines.push(`${pc.green('✓')} ${remoteSkill.installName}`);
-      }
-      resultLines.push(...buildResultLines(successful, targetAgents));
-    }
-
-    const title = pc.green('Installed 1 skill');
-    p.note(resultLines.join('\n'), title);
-
-    // Show MCP server configuration instructions
-    if (firstResult.mode === 'mcp-server') {
-      p.log.message('');
-      p.log.message(pc.dim('To use with MCP clients, add to your MCP config:'));
-      p.log.message(pc.cyan('  { "command": "npx", "args": ["-y", "@codemcp/skills-server"] }'));
-    }
-
-    // Show symlink failure warning
-    const symlinkFailures = successful.filter((r) => r.mode === 'symlink' && r.symlinkFailed);
-    if (symlinkFailures.length > 0) {
-      const copiedAgentNames = symlinkFailures.map((r) => r.agent);
-      p.log.warn(pc.yellow(`Symlinks failed for: ${formatList(copiedAgentNames)}`));
-      p.log.message(
-        pc.dim(
-          '  Files were copied instead. On Windows, enable Developer Mode for symlink support.'
-        )
-      );
-    }
-  }
-
-  if (failed.length > 0) {
-    console.log();
-    p.log.error(pc.red(`Failed to install ${failed.length}`));
-    for (const r of failed) {
-      p.log.message(`  ${pc.red('✗')} ${r.skill} → ${r.agent}: ${pc.dim(r.error)}`);
-    }
-  }
-
-  console.log();
-  p.outro(
-    pc.green('Done!') + pc.dim('  Review skills before use; they run with full agent permissions.')
-  );
-
-  // Prompt for find-skills after successful install
-  await promptForFindSkills(options, targetAgents);
 }
 
 /**
@@ -1183,323 +868,6 @@ async function handleWellKnownSkills(
   await promptForFindSkills(options, targetAgents);
 }
 
-/**
- * Legacy handler for direct URL skill installation (Mintlify-hosted skills)
- * @deprecated Use handleRemoteSkill with provider system instead
- */
-async function handleDirectUrlSkillLegacy(
-  source: string,
-  url: string,
-  options: AddOptions,
-  spinner: ReturnType<typeof p.spinner>
-): Promise<void> {
-  spinner.start('Fetching skill.md...');
-  const mintlifySkill = await fetchMintlifySkill(url);
-
-  if (!mintlifySkill) {
-    spinner.stop(pc.red('Invalid skill'));
-    p.outro(
-      pc.red(
-        'Could not fetch skill.md or missing required frontmatter (name, description, mintlify-proj).'
-      )
-    );
-    process.exit(1);
-  }
-
-  // Convert to RemoteSkill and use the new handler
-  const remoteSkill: RemoteSkill = {
-    name: mintlifySkill.name,
-    description: mintlifySkill.description,
-    content: mintlifySkill.content,
-    installName: mintlifySkill.mintlifySite,
-    sourceUrl: mintlifySkill.sourceUrl,
-    providerId: 'mintlify',
-    sourceIdentifier: 'mintlify/com',
-  };
-
-  spinner.stop(`Found skill: ${pc.cyan(remoteSkill.installName)}`);
-
-  p.log.info(`Skill: ${pc.cyan(remoteSkill.name)}`);
-  p.log.message(pc.dim(remoteSkill.description));
-
-  if (options.list) {
-    console.log();
-    p.log.step(pc.bold('Skill Details'));
-    p.log.message(`  ${pc.cyan('Name:')} ${remoteSkill.name}`);
-    p.log.message(`  ${pc.cyan('Site:')} ${remoteSkill.installName}`);
-    p.log.message(`  ${pc.cyan('Description:')} ${remoteSkill.description}`);
-    console.log();
-    p.outro('Run without --list to install');
-    process.exit(0);
-  }
-
-  // Detect agents
-  let targetAgents: AgentType[];
-  const validAgents = Object.keys(agents);
-
-  if (options.agent?.includes('*')) {
-    // --agent '*' selects all agents
-    targetAgents = validAgents as AgentType[];
-    p.log.info(`Installing to all ${targetAgents.length} agents`);
-  } else if (options.agent && options.agent.length > 0) {
-    const invalidAgents = options.agent.filter((a) => !validAgents.includes(a));
-
-    if (invalidAgents.length > 0) {
-      p.log.error(`Invalid agents: ${invalidAgents.join(', ')}`);
-      p.log.info(`Valid agents: ${validAgents.join(', ')}`);
-      process.exit(1);
-    }
-
-    targetAgents = options.agent as AgentType[];
-  } else {
-    spinner.start('Loading agents...');
-    const installedAgents = await detectInstalledAgents();
-    const totalAgents = Object.keys(agents).length;
-    spinner.stop(`${totalAgents} agents`);
-
-    if (installedAgents.length === 0) {
-      if (options.yes) {
-        targetAgents = validAgents as AgentType[];
-        p.log.info('Installing to all agents');
-      } else {
-        p.log.info('Select agents to install skills to');
-
-        const allAgentChoices = Object.entries(agents).map(([key, config]) => ({
-          value: key as AgentType,
-          label: config.displayName,
-        }));
-
-        // Use helper to prompt with search
-        const selected = await promptForAgents(
-          'Which agents do you want to install to?',
-          allAgentChoices
-        );
-
-        if (p.isCancel(selected)) {
-          p.cancel('Installation cancelled');
-          process.exit(0);
-        }
-
-        targetAgents = selected as AgentType[];
-      }
-    } else if (installedAgents.length === 1 || options.yes) {
-      // Auto-select detected agents + ensure universal agents are included
-      targetAgents = ensureUniversalAgents(installedAgents);
-      if (installedAgents.length === 1) {
-        const firstAgent = installedAgents[0]!;
-        p.log.info(`Installing to: ${pc.cyan(agents[firstAgent].displayName)}`);
-      } else {
-        p.log.info(
-          `Installing to: ${installedAgents.map((a) => pc.cyan(agents[a].displayName)).join(', ')}`
-        );
-      }
-    } else {
-      const selected = await selectAgentsInteractive({ global: options.global });
-
-      if (p.isCancel(selected)) {
-        p.cancel('Installation cancelled');
-        process.exit(0);
-      }
-
-      targetAgents = selected as AgentType[];
-    }
-  }
-
-  let installGlobally = options.global ?? false;
-
-  // Check if any selected agents support global installation
-  const supportsGlobal = targetAgents.some((a) => agents[a].globalSkillsDir !== undefined);
-
-  if (options.global === undefined && !options.yes && supportsGlobal) {
-    const scope = await p.select({
-      message: 'Installation scope',
-      options: [
-        {
-          value: false,
-          label: 'Project',
-          hint: 'Install in current directory (committed with your project)',
-        },
-        {
-          value: true,
-          label: 'Global',
-          hint: 'Install in home directory (available across all projects)',
-        },
-      ],
-    });
-
-    if (p.isCancel(scope)) {
-      p.cancel('Installation cancelled');
-      process.exit(0);
-    }
-
-    installGlobally = scope as boolean;
-  }
-
-  // Use symlink mode by default for direct URL skills
-  const installMode: InstallMode = 'symlink';
-  const cwd = process.cwd();
-
-  // Check for overwrites (parallel)
-  const overwriteChecks = await Promise.all(
-    targetAgents.map(async (agent) => ({
-      agent,
-      installed: await isSkillInstalled(remoteSkill.installName, agent, {
-        global: installGlobally,
-      }),
-    }))
-  );
-  const overwriteStatus = new Map(
-    overwriteChecks.map(({ agent, installed }) => [agent, installed])
-  );
-
-  // Build installation summary
-  const summaryLines: string[] = [];
-  const agentNames = targetAgents.map((a) => agents[a].displayName);
-  const canonicalPath = getCanonicalPath(remoteSkill.installName, { global: installGlobally });
-  const shortCanonical = shortenPath(canonicalPath, cwd);
-  summaryLines.push(`${pc.cyan(shortCanonical)}`);
-  summaryLines.push(...buildAgentSummaryLines(targetAgents, installMode));
-
-  const overwriteAgents = targetAgents
-    .filter((a) => overwriteStatus.get(a))
-    .map((a) => agents[a].displayName);
-
-  if (overwriteAgents.length > 0) {
-    summaryLines.push(`  ${pc.yellow('overwrites:')} ${formatList(overwriteAgents)}`);
-  }
-
-  console.log();
-  p.note(summaryLines.join('\n'), 'Installation Summary');
-
-  if (!options.yes) {
-    const confirmed = await p.confirm({
-      message: 'Proceed with installation?',
-    });
-
-    if (p.isCancel(confirmed) || !confirmed) {
-      p.cancel('Installation cancelled');
-      process.exit(0);
-    }
-  }
-
-  spinner.start('Installing skill...');
-
-  const results: {
-    skill: string;
-    agent: string;
-    success: boolean;
-    path: string;
-    canonicalPath?: string;
-    mode: InstallMode;
-    symlinkFailed?: boolean;
-    error?: string;
-  }[] = [];
-
-  if (installMode === 'mcp-server') {
-    // MCP server mode: install once to canonical location, use universal agent
-    const result = await installRemoteSkillForAgent(remoteSkill, 'universal', {
-      global: installGlobally,
-      mode: installMode,
-    });
-    results.push({
-      skill: remoteSkill.installName,
-      agent: 'MCP Server',
-      ...result,
-    });
-  } else {
-    // Symlink and copy modes: install per-agent
-    for (const agent of targetAgents) {
-      const result = await installRemoteSkillForAgent(remoteSkill, agent, {
-        global: installGlobally,
-        mode: installMode,
-      });
-      results.push({
-        skill: remoteSkill.installName,
-        agent: agents[agent].displayName,
-        ...result,
-      });
-    }
-  }
-
-  spinner.stop('Installation complete');
-
-  console.log();
-  const successful = results.filter((r) => r.success);
-  const failed = results.filter((r) => !r.success);
-
-  // Track installation
-  // Skip telemetry for private GitHub repos (mintlify/com is not a GitHub repo, so always send)
-  track({
-    event: 'install',
-    source: 'mintlify/com',
-    skills: remoteSkill.installName,
-    agents: targetAgents.join(','),
-    ...(installGlobally && { global: '1' }),
-    skillFiles: JSON.stringify({ [remoteSkill.installName]: url }),
-    sourceType: 'mintlify',
-  });
-
-  // Add to skill lock file for update tracking (only for global installs)
-  if (successful.length > 0 && installGlobally) {
-    try {
-      // skillFolderHash will be populated by telemetry server
-      // Mintlify skills are single-file, so folder hash = content hash on server
-      await addSkillToLock(remoteSkill.installName, {
-        source: `mintlify/${remoteSkill.installName}`,
-        sourceType: 'mintlify',
-        sourceUrl: url,
-        skillFolderHash: '', // Populated by server
-      });
-    } catch {
-      // Don't fail installation if lock file update fails
-    }
-  }
-
-  if (successful.length > 0) {
-    const resultLines: string[] = [];
-    const firstResult = successful[0]!;
-
-    if (firstResult.canonicalPath) {
-      const shortPath = shortenPath(firstResult.canonicalPath, cwd);
-      resultLines.push(`${pc.green('✓')} ${shortPath}`);
-    } else {
-      resultLines.push(`${pc.green('✓')} ${remoteSkill.installName}`);
-    }
-    resultLines.push(...buildResultLines(successful, targetAgents));
-
-    const title = pc.green('Installed 1 skill');
-    p.note(resultLines.join('\n'), title);
-
-    // Show symlink failure warning
-    const symlinkFailures = successful.filter((r) => r.mode === 'symlink' && r.symlinkFailed);
-    if (symlinkFailures.length > 0) {
-      const copiedAgentNames = symlinkFailures.map((r) => r.agent);
-      p.log.warn(pc.yellow(`Symlinks failed for: ${formatList(copiedAgentNames)}`));
-      p.log.message(
-        pc.dim(
-          '  Files were copied instead. On Windows, enable Developer Mode for symlink support.'
-        )
-      );
-    }
-  }
-
-  if (failed.length > 0) {
-    console.log();
-    p.log.error(pc.red(`Failed to install ${failed.length}`));
-    for (const r of failed) {
-      p.log.message(`  ${pc.red('✗')} ${r.skill} → ${r.agent}: ${pc.dim(r.error)}`);
-    }
-  }
-
-  console.log();
-  p.outro(
-    pc.green('Done!') + pc.dim('  Review skills before use; they run with full agent permissions.')
-  );
-
-  // Prompt for find-skills after successful install
-  await promptForFindSkills(options, targetAgents);
-}
-
 export async function runAdd(args: string[], options: AddOptions = {}): Promise<void> {
   const source = args[0];
   let installTipShown = false;
@@ -1555,12 +923,6 @@ export async function runAdd(args: string[], options: AddOptions = {}): Promise<
     spinner.stop(
       `Source: ${parsed.type === 'local' ? parsed.localPath! : parsed.url}${parsed.ref ? ` @ ${pc.yellow(parsed.ref)}` : ''}${parsed.subpath ? ` (${parsed.subpath})` : ''}${parsed.skillFilter ? ` ${pc.dim('@')}${pc.cyan(parsed.skillFilter)}` : ''}`
     );
-
-    // Handle direct URL skills (Mintlify, HuggingFace, etc.) via provider system
-    if (parsed.type === 'direct-url') {
-      await handleRemoteSkill(source, parsed.url, options, spinner);
-      return;
-    }
 
     // Handle well-known skills from arbitrary URLs
     if (parsed.type === 'well-known') {
@@ -1985,6 +1347,12 @@ export async function runAdd(args: string[], options: AddOptions = {}): Promise<
     // Normalize source to owner/repo format for telemetry
     const normalizedSource = getOwnerRepo(parsed);
 
+    // Preserve SSH URLs in lock files instead of normalizing to owner/repo shorthand.
+    // When normalizedSource is used, parseSource() later resolves it to HTTPS,
+    // breaking restore for private repos that require SSH authentication.
+    const isSSH = parsed.url.startsWith('git@');
+    const lockSource = isSSH ? parsed.url : normalizedSource;
+
     // Only track if we have a valid remote source and it's not a private repo
     if (normalizedSource) {
       const ownerRepo = parseOwnerRepo(normalizedSource);
@@ -2027,12 +1395,13 @@ export async function runAdd(args: string[], options: AddOptions = {}): Promise<
             let skillFolderHash = '';
             const skillPathValue = skillFiles[skill.name];
             if (parsed.type === 'github' && skillPathValue) {
-              const hash = await fetchSkillFolderHash(normalizedSource, skillPathValue);
+              const token = getGitHubToken();
+              const hash = await fetchSkillFolderHash(normalizedSource, skillPathValue, token);
               if (hash) skillFolderHash = hash;
             }
 
             await addSkillToLock(skill.name, {
-              source: normalizedSource,
+              source: lockSource || normalizedSource,
               sourceType: parsed.type,
               sourceUrl: parsed.url,
               skillPath: skillPathValue,
@@ -2057,7 +1426,7 @@ export async function runAdd(args: string[], options: AddOptions = {}): Promise<
             await addSkillToLocalLock(
               skill.name,
               {
-                source: normalizedSource || parsed.url,
+                source: lockSource || parsed.url,
                 sourceType: parsed.type,
                 computedHash,
               },

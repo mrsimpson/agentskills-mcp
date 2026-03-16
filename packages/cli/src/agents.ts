@@ -79,8 +79,8 @@ export const agents: Record<AgentType, AgentConfig> = {
   cline: {
     name: 'cline',
     displayName: 'Cline',
-    skillsDir: '.cline/skills',
-    globalSkillsDir: join(home, '.cline/skills'),
+    skillsDir: '.agents/skills',
+    globalSkillsDir: join(home, '.agents', 'skills'),
     detectInstalled: async () => {
       return existsSync(join(home, '.cline'));
     },
@@ -174,11 +174,6 @@ export const agents: Record<AgentType, AgentConfig> = {
     detectInstalled: async () => {
       return existsSync(join(home, '.copilot'));
     },
-    agentConfigSupport: {
-      activationHint:
-        'Open Copilot Chat in your IDE and select the "skills-mcp" agent from the agent picker.',
-      verified: true,
-    },
   },
   goose: {
     name: 'goose',
@@ -233,10 +228,6 @@ export const agents: Record<AgentType, AgentConfig> = {
     detectInstalled: async () => {
       return existsSync(join(home, '.kiro'));
     },
-    agentConfigSupport: {
-      activationHint: 'kiro-cli chat --agent skills-mcp',
-      verified: true,
-    },
   },
   kode: {
     name: 'kode',
@@ -281,10 +272,6 @@ export const agents: Record<AgentType, AgentConfig> = {
     globalSkillsDir: join(configHome, 'opencode/skills'),
     detectInstalled: async () => {
       return existsSync(join(configHome, 'opencode'));
-    },
-    agentConfigSupport: {
-      activationHint: 'opencode --agent skills-mcp  (or type @skills-mcp inside the TUI)',
-      verified: true,
     },
   },
   openhands: {
@@ -358,6 +345,15 @@ export const agents: Record<AgentType, AgentConfig> = {
     globalSkillsDir: join(home, '.trae-cn/skills'),
     detectInstalled: async () => {
       return existsSync(join(home, '.trae-cn'));
+    },
+  },
+  warp: {
+    name: 'warp',
+    displayName: 'Warp',
+    skillsDir: '.agents/skills',
+    globalSkillsDir: join(home, '.agents/skills'),
+    detectInstalled: async () => {
+      return existsSync(join(home, '.warp'));
     },
   },
   windsurf: {

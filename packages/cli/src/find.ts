@@ -45,12 +45,14 @@ export async function searchSkillsAPI(query: string): Promise<SearchSkill[]> {
       }>;
     };
 
-    return data.skills.map((skill) => ({
-      name: skill.name,
-      slug: skill.id,
-      source: skill.source || '',
-      installs: skill.installs,
-    }));
+    return data.skills
+      .map((skill) => ({
+        name: skill.name,
+        slug: skill.id,
+        source: skill.source || '',
+        installs: skill.installs,
+      }))
+      .sort((a, b) => (b.installs || 0) - (a.installs || 0));
   } catch {
     return [];
   }
@@ -268,8 +270,8 @@ export async function runFind(args: string[]): Promise<void> {
   const query = args.join(' ');
   const isNonInteractive = !process.stdin.isTTY;
   const agentTip = `${DIM}Tip: if running in a coding agent, follow these steps:${RESET}
-${DIM}  1) npx @codemcp/skills find [query]${RESET}
-${DIM}  2) npx @codemcp/skills add <owner/repo@skill>${RESET}`;
+${DIM}  1) npx skills find [query]${RESET}
+${DIM}  2) npx skills add <owner/repo@skill>${RESET}`;
 
   // Non-interactive mode: just print results and exit
   if (query) {
@@ -287,7 +289,7 @@ ${DIM}  2) npx @codemcp/skills add <owner/repo@skill>${RESET}`;
       return;
     }
 
-    console.log(`${DIM}Install with${RESET} npx @codemcp/skills add <owner/repo@skill>`);
+    console.log(`${DIM}Install with${RESET} npx skills add <owner/repo@skill>`);
     console.log();
 
     for (const skill of results.slice(0, 6)) {

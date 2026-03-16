@@ -35,31 +35,12 @@ export type AgentType =
   | 'roo'
   | 'trae'
   | 'trae-cn'
+  | 'warp'
   | 'windsurf'
   | 'zencoder'
   | 'pochi'
   | 'adal'
   | 'universal';
-
-/** Definition of a {{PARAM_NAME}} placeholder in an MCP server dependency. */
-export interface McpParameterSpec {
-  description: string;
-  required: boolean;
-  default?: string;
-  sensitive?: boolean;
-}
-
-/** An MCP server required by a skill (from requires-mcp-servers frontmatter). */
-export interface McpServerDependency {
-  name: string;
-  package?: string;
-  description: string;
-  command: string;
-  args?: string[];
-  env?: Record<string, string>;
-  cwd?: string;
-  parameters?: Record<string, McpParameterSpec>;
-}
 
 export interface Skill {
   name: string;
@@ -70,29 +51,6 @@ export interface Skill {
   /** Name of the plugin this skill belongs to (if any) */
   pluginName?: string;
   metadata?: Record<string, unknown>;
-  /** MCP servers required by this skill (from requires-mcp-servers frontmatter). */
-  requiresMcpServers?: McpServerDependency[];
-  /** Tools this skill is permitted to use (from allowed-tools frontmatter). */
-  allowedTools?: string[];
-}
-
-/**
- * Metadata for agents that support a rich agent-config file
- * (beyond a plain mcp.json) via the ConfigGeneratorRegistry.
- */
-export interface AgentConfigSupport {
-  /**
-   * Short hint shown after setup so the user knows how to activate the agent.
-   * May be a CLI command string or a plain UI instruction.
-   * e.g. "kiro-cli chat --agent skills-mcp"
-   */
-  activationHint: string;
-  /**
-   * Whether this agent's MCP integration has been verified to work.
-   * If false, a disclaimer is shown to the user to manually verify the agent picks up the MCP server.
-   * Defaults to false (unverified).
-   */
-  verified?: boolean;
 }
 
 export interface AgentConfig {
@@ -104,29 +62,16 @@ export interface AgentConfig {
   detectInstalled: () => Promise<boolean>;
   /** Whether to show this agent in the universal agents list. Defaults to true. */
   showInUniversalList?: boolean;
-  /**
-   * Present only for agents that support a structured agent-config file
-   * (Kiro, GitHub Copilot, OpenCode). Absence means only mcp.json is supported.
-   */
-  agentConfigSupport?: AgentConfigSupport;
 }
 
 export interface ParsedSource {
-  type: 'github' | 'gitlab' | 'git' | 'local' | 'direct-url' | 'well-known';
+  type: 'github' | 'gitlab' | 'git' | 'local' | 'well-known';
   url: string;
   subpath?: string;
   localPath?: string;
   ref?: string;
   /** Skill name extracted from @skill syntax (e.g., owner/repo@skill-name) */
   skillFilter?: string;
-}
-
-export interface MintlifySkill {
-  name: string;
-  description: string;
-  content: string;
-  mintlifySite: string;
-  sourceUrl: string;
 }
 
 /**
@@ -145,7 +90,7 @@ export interface RemoteSkill {
   sourceUrl: string;
   /** The provider that fetched this skill */
   providerId: string;
-  /** Source identifier for telemetry (e.g., "mintlify/bun.com") */
+  /** Source identifier for telemetry (e.g., "mintlify.com") */
   sourceIdentifier: string;
   /** Any additional metadata from frontmatter */
   metadata?: Record<string, unknown>;
