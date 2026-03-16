@@ -100,7 +100,22 @@ Agent configs are written to the project directory (`.claude/`, `.kiro/`, `openc
 List all configured and installed skills.
 
 ```bash
-npx @codemcp/skills list
+npx @codemcp/skills list [options]
+```
+
+| Option         | Description                                      |
+| -------------- | ------------------------------------------------ |
+| `-g, --global` | List global skills (default: project)            |
+| `-a, --agent`  | Filter by specific agents                        |
+| `--json`       | Output as JSON (machine-readable, no ANSI codes) |
+
+**Examples:**
+
+```bash
+npx @codemcp/skills list                 # list project skills
+npx @codemcp/skills list -g              # list global skills
+npx @codemcp/skills list -a claude-code  # filter by agent
+npx @codemcp/skills list --json          # machine-readable JSON output
 ```
 
 ## `npx @codemcp/skills validate`

@@ -14,7 +14,6 @@ import { removeCommand, parseRemoveOptions } from './remove.ts';
 import { runSync, parseSyncOptions } from './sync.ts';
 import { track } from './telemetry.ts';
 import { fetchSkillFolderHash, getGitHubToken } from './skill-lock.ts';
-import { runMcpSetup, parseMcpOptions } from './mcp.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -38,12 +37,12 @@ const DIM = '\x1b[38;5;102m'; // darker gray for secondary text
 const TEXT = '\x1b[38;5;145m'; // lighter gray for primary text
 
 const LOGO_LINES = [
-  '███████╗██╗  ██╗██╗██╗     ██╗     ███████╗      ███╗   ███╗ ██████╗██████╗ ',
-  '██╔════╝██║ ██╔╝██║██║     ██║     ██╔════╝      ████╗ ████║██╔════╝██╔══██╗',
-  '███████╗█████╔╝ ██║██║     ██║     ███████╗█████╗██╔████╔██║██║     ██████╔╝',
-  '╚════██║██╔═██╗ ██║██║     ██║     ╚════██║╚════╝██║╚██╔╝██║██║     ██╔═══╝ ',
-  '███████║██║  ██╗██║███████╗███████╗███████║      ██║ ╚═╝ ██║╚██████╗██║     ',
-  '╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚══════╝      ╚═╝     ╚═╝ ╚═════╝╚═╝     ',
+  '███████╗██╗  ██╗██╗██╗     ██╗     ███████╗',
+  '██╔════╝██║ ██╔╝██║██║     ██║     ██╔════╝',
+  '███████╗█████╔╝ ██║██║     ██║     ███████╗',
+  '╚════██║██╔═██╗ ██║██║     ██║     ╚════██║',
+  '███████║██║  ██╗██║███████╗███████╗███████║',
+  '╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚══════╝',
 ];
 
 // 256-color middle grays - visible on both light and dark backgrounds
@@ -69,36 +68,36 @@ function showBanner(): void {
   console.log(`${DIM}The open agent skills ecosystem${RESET}`);
   console.log();
   console.log(
-    `  ${DIM}$${RESET} ${TEXT}npx @codemcp/skills add ${DIM}<package>${RESET}        ${DIM}Add a new skill${RESET}`
+    `  ${DIM}$${RESET} ${TEXT}npx skills add ${DIM}<package>${RESET}        ${DIM}Add a new skill${RESET}`
   );
   console.log(
-    `  ${DIM}$${RESET} ${TEXT}npx @codemcp/skills remove${RESET}               ${DIM}Remove installed skills${RESET}`
+    `  ${DIM}$${RESET} ${TEXT}npx skills remove${RESET}               ${DIM}Remove installed skills${RESET}`
   );
   console.log(
-    `  ${DIM}$${RESET} ${TEXT}npx @codemcp/skills list${RESET}                 ${DIM}List installed skills${RESET}`
+    `  ${DIM}$${RESET} ${TEXT}npx skills list${RESET}                 ${DIM}List installed skills${RESET}`
   );
   console.log(
-    `  ${DIM}$${RESET} ${TEXT}npx @codemcp/skills find ${DIM}[query]${RESET}         ${DIM}Search for skills${RESET}`
+    `  ${DIM}$${RESET} ${TEXT}npx skills find ${DIM}[query]${RESET}         ${DIM}Search for skills${RESET}`
   );
   console.log();
   console.log(
-    `  ${DIM}$${RESET} ${TEXT}npx @codemcp/skills check${RESET}                ${DIM}Check for updates${RESET}`
+    `  ${DIM}$${RESET} ${TEXT}npx skills check${RESET}                ${DIM}Check for updates${RESET}`
   );
   console.log(
-    `  ${DIM}$${RESET} ${TEXT}npx @codemcp/skills update${RESET}               ${DIM}Update all skills${RESET}`
+    `  ${DIM}$${RESET} ${TEXT}npx skills update${RESET}               ${DIM}Update all skills${RESET}`
   );
   console.log();
   console.log(
-    `  ${DIM}$${RESET} ${TEXT}npx @codemcp/skills experimental_install${RESET} ${DIM}Restore from skills-lock.json${RESET}`
+    `  ${DIM}$${RESET} ${TEXT}npx skills experimental_install${RESET} ${DIM}Restore from skills-lock.json${RESET}`
   );
   console.log(
-    `  ${DIM}$${RESET} ${TEXT}npx @codemcp/skills init ${DIM}[name]${RESET}          ${DIM}Create a new skill${RESET}`
+    `  ${DIM}$${RESET} ${TEXT}npx skills init ${DIM}[name]${RESET}          ${DIM}Create a new skill${RESET}`
   );
   console.log(
-    `  ${DIM}$${RESET} ${TEXT}npx @codemcp/skills experimental_sync${RESET}    ${DIM}Sync skills from node_modules${RESET}`
+    `  ${DIM}$${RESET} ${TEXT}npx skills experimental_sync${RESET}    ${DIM}Sync skills from node_modules${RESET}`
   );
   console.log();
-  console.log(`${DIM}try:${RESET} npx @codemcp/skills add vercel-labs/agent-skills`);
+  console.log(`${DIM}try:${RESET} npx skills add vercel-labs/agent-skills`);
   console.log();
   console.log(`Discover more skills at ${TEXT}https://skills.sh/${RESET}`);
   console.log();
@@ -106,7 +105,7 @@ function showBanner(): void {
 
 function showHelp(): void {
   console.log(`
-${BOLD}Usage:${RESET} npx @codemcp/skills <command> [options]
+${BOLD}Usage:${RESET} skills <command> [options]
 
 ${BOLD}Manage Skills:${RESET}
   add <package>        Add a skill package (alias: a)
@@ -149,30 +148,32 @@ ${BOLD}Experimental Sync Options:${RESET}
 ${BOLD}List Options:${RESET}
   -g, --global           List global skills (default: project)
   -a, --agent <agents>   Filter by specific agents
+  --json                 Output as JSON (machine-readable, no ANSI codes)
 
 ${BOLD}Options:${RESET}
   --help, -h        Show this help message
   --version, -v     Show version number
 
 ${BOLD}Examples:${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills add vercel-labs/agent-skills
-  ${DIM}$${RESET} npx @codemcp/skills add vercel-labs/agent-skills -g
-  ${DIM}$${RESET} npx @codemcp/skills add vercel-labs/agent-skills --agent claude-code cursor
-  ${DIM}$${RESET} npx @codemcp/skills add vercel-labs/agent-skills --skill pr-review commit
-  ${DIM}$${RESET} npx @codemcp/skills remove                        ${DIM}# interactive remove${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills remove web-design             ${DIM}# remove by name${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills rm --global frontend-design
-  ${DIM}$${RESET} npx @codemcp/skills list                          ${DIM}# list project skills${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills ls -g                         ${DIM}# list global skills${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills ls -a claude-code             ${DIM}# filter by agent${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills find                          ${DIM}# interactive search${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills find typescript               ${DIM}# search by keyword${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills check
-  ${DIM}$${RESET} npx @codemcp/skills update
-  ${DIM}$${RESET} npx @codemcp/skills experimental_install            ${DIM}# restore from skills-lock.json${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills init my-skill
-  ${DIM}$${RESET} npx @codemcp/skills experimental_sync              ${DIM}# sync from node_modules${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills experimental_sync -y           ${DIM}# sync without prompts${RESET}
+  ${DIM}$${RESET} skills add vercel-labs/agent-skills
+  ${DIM}$${RESET} skills add vercel-labs/agent-skills -g
+  ${DIM}$${RESET} skills add vercel-labs/agent-skills --agent claude-code cursor
+  ${DIM}$${RESET} skills add vercel-labs/agent-skills --skill pr-review commit
+  ${DIM}$${RESET} skills remove                        ${DIM}# interactive remove${RESET}
+  ${DIM}$${RESET} skills remove web-design             ${DIM}# remove by name${RESET}
+  ${DIM}$${RESET} skills rm --global frontend-design
+  ${DIM}$${RESET} skills list                          ${DIM}# list project skills${RESET}
+  ${DIM}$${RESET} skills ls -g                         ${DIM}# list global skills${RESET}
+  ${DIM}$${RESET} skills ls -a claude-code             ${DIM}# filter by agent${RESET}
+  ${DIM}$${RESET} skills ls --json                      ${DIM}# JSON output${RESET}
+  ${DIM}$${RESET} skills find                          ${DIM}# interactive search${RESET}
+  ${DIM}$${RESET} skills find typescript               ${DIM}# search by keyword${RESET}
+  ${DIM}$${RESET} skills check
+  ${DIM}$${RESET} skills update
+  ${DIM}$${RESET} skills experimental_install            ${DIM}# restore from skills-lock.json${RESET}
+  ${DIM}$${RESET} skills init my-skill
+  ${DIM}$${RESET} skills experimental_sync              ${DIM}# sync from node_modules${RESET}
+  ${DIM}$${RESET} skills experimental_sync -y           ${DIM}# sync without prompts${RESET}
 
 Discover more skills at ${TEXT}https://skills.sh/${RESET}
 `);
@@ -180,7 +181,7 @@ Discover more skills at ${TEXT}https://skills.sh/${RESET}
 
 function showRemoveHelp(): void {
   console.log(`
-${BOLD}Usage:${RESET} npx @codemcp/skills remove [skills...] [options]
+${BOLD}Usage:${RESET} skills remove [skills...] [options]
 
 ${BOLD}Description:${RESET}
   Remove installed skills from agents. If no skill names are provided,
@@ -197,58 +198,15 @@ ${BOLD}Options:${RESET}
   --all              Shorthand for --skill '*' --agent '*' -y
 
 ${BOLD}Examples:${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills remove                           ${DIM}# interactive selection${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills remove my-skill                   ${DIM}# remove specific skill${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills remove skill1 skill2 -y           ${DIM}# remove multiple skills${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills remove --global my-skill          ${DIM}# remove from global scope${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills rm --agent claude-code my-skill   ${DIM}# remove from specific agent${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills remove --all                      ${DIM}# remove all skills${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills remove --skill '*' -a cursor      ${DIM}# remove all skills from cursor${RESET}
+  ${DIM}$${RESET} skills remove                           ${DIM}# interactive selection${RESET}
+  ${DIM}$${RESET} skills remove my-skill                   ${DIM}# remove specific skill${RESET}
+  ${DIM}$${RESET} skills remove skill1 skill2 -y           ${DIM}# remove multiple skills${RESET}
+  ${DIM}$${RESET} skills remove --global my-skill          ${DIM}# remove from global scope${RESET}
+  ${DIM}$${RESET} skills rm --agent claude-code my-skill   ${DIM}# remove from specific agent${RESET}
+  ${DIM}$${RESET} skills remove --all                      ${DIM}# remove all skills${RESET}
+  ${DIM}$${RESET} skills remove --skill '*' -a cursor      ${DIM}# remove all skills from cursor${RESET}
 
 Discover more skills at ${TEXT}https://skills.sh/${RESET}
-`);
-}
-
-function showMcpHelp(): void {
-  console.log(`
-${BOLD}Usage:${RESET} npx @codemcp/skills mcp setup [options]
-
-${BOLD}Description:${RESET}
-  Configure MCP (Model Context Protocol) server for agent environments.
-  Supports both interactive (TUI) and command-line (CLI) modes.
-
-${BOLD}Subcommands:${RESET}
-  setup               Configure MCP server for agents (default if no subcommand)
-
-${BOLD}Options:${RESET}
-  -a, --agent         Specify agents to configure (space-separated)
-                      Use '*' to configure all detected agents
-  -g, --global        Write configs to home directory instead of project
-  --agent-config      Create a named agent file with usage instructions
-                      (Kiro, GitHub Copilot, OpenCode only; default for those agents)
-  --mcp-json          Register MCP servers in mcp.json only, no agent file
-                      (works for all agents; skips the TUI mode-selection prompt)
-
-${BOLD}Modes:${RESET}
-  ${DIM}Interactive (TUI):${RESET} npx @codemcp/skills mcp setup
-    Guides through scope → agent selection → config type → summary
-
-  ${DIM}Command-line (CLI):${RESET} npx @codemcp/skills mcp setup --agent <agents>
-    Configures specified agents without interaction
-
-${BOLD}Examples:${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills mcp setup                                        ${DIM}# interactive${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills mcp setup --agent claude-code                    ${DIM}# mcp.json for Claude${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills mcp setup --agent kiro-cli --agent-config        ${DIM}# Kiro agent file${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills mcp setup --agent kiro-cli --mcp-json            ${DIM}# Kiro mcp.json only${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills mcp setup --agent claude-code cline --mcp-json   ${DIM}# multiple, mcp.json${RESET}
-  ${DIM}$${RESET} npx @codemcp/skills mcp setup --agent '*'                            ${DIM}# all agents${RESET}
-
-${BOLD}Supported Agents:${RESET}
-  claude-code, cline, cursor, kiro-cli, junie, opencode, and more
-  Agents marked ✦ in the TUI support a rich agent config file.
-
-Discover more at ${TEXT}https://skills.sh/${RESET}
 `);
 }
 
@@ -305,10 +263,10 @@ Describe when this skill should be used.
   console.log();
   console.log(`${DIM}Publishing:${RESET}`);
   console.log(
-    `  ${DIM}GitHub:${RESET}  Push to a repo, then ${TEXT}npx @codemcp/skills add <owner>/<repo>${RESET}`
+    `  ${DIM}GitHub:${RESET}  Push to a repo, then ${TEXT}npx skills add <owner>/<repo>${RESET}`
   );
   console.log(
-    `  ${DIM}URL:${RESET}     Host the file, then ${TEXT}npx @codemcp/skills add https://example.com/${displayPath}${RESET}`
+    `  ${DIM}URL:${RESET}     Host the file, then ${TEXT}npx skills add https://example.com/${displayPath}${RESET}`
   );
   console.log();
   console.log(`Browse existing skills for inspiration at ${TEXT}https://skills.sh/${RESET}`);
@@ -364,6 +322,10 @@ interface CheckUpdatesResponse {
 }
 
 function getSkillLockPath(): string {
+  const xdgStateHome = process.env.XDG_STATE_HOME;
+  if (xdgStateHome) {
+    return join(xdgStateHome, 'skills', LOCK_FILE);
+  }
   return join(homedir(), AGENTS_DIR, LOCK_FILE);
 }
 
@@ -388,11 +350,50 @@ function readSkillLock(): SkillLockFile {
 
 function writeSkillLock(lock: SkillLockFile): void {
   const lockPath = getSkillLockPath();
-  const dir = join(homedir(), AGENTS_DIR);
+  const dir = dirname(lockPath);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
   writeFileSync(lockPath, JSON.stringify(lock, null, 2), 'utf-8');
+}
+
+interface SkippedSkill {
+  name: string;
+  reason: string;
+  sourceUrl: string;
+}
+
+/**
+ * Determine why a skill cannot be checked for updates automatically.
+ */
+function getSkipReason(entry: SkillLockEntry): string {
+  if (entry.sourceType === 'local') {
+    return 'Local path';
+  }
+  if (entry.sourceType === 'git') {
+    return 'Git URL (hash tracking not supported)';
+  }
+  if (!entry.skillFolderHash) {
+    return 'No version hash available';
+  }
+  if (!entry.skillPath) {
+    return 'No skill path recorded';
+  }
+  return 'No version tracking';
+}
+
+/**
+ * Print a list of skills that cannot be checked automatically,
+ * with the reason and a manual update command for each.
+ */
+function printSkippedSkills(skipped: SkippedSkill[]): void {
+  if (skipped.length === 0) return;
+  console.log();
+  console.log(`${DIM}${skipped.length} skill(s) cannot be checked automatically:${RESET}`);
+  for (const skill of skipped) {
+    console.log(`  ${TEXT}•${RESET} ${skill.name} ${DIM}(${skill.reason})${RESET}`);
+    console.log(`    ${DIM}To update: ${TEXT}npx skills add ${skill.sourceUrl} -g -y${RESET}`);
+  }
 }
 
 async function runCheck(args: string[] = []): Promise<void> {
@@ -404,9 +405,7 @@ async function runCheck(args: string[] = []): Promise<void> {
 
   if (skillNames.length === 0) {
     console.log(`${DIM}No skills tracked in lock file.${RESET}`);
-    console.log(
-      `${DIM}Install skills with${RESET} ${TEXT}npx @codemcp/skills add <package>${RESET}`
-    );
+    console.log(`${DIM}Install skills with${RESET} ${TEXT}npx skills add <package>${RESET}`);
     return;
   }
 
@@ -415,15 +414,15 @@ async function runCheck(args: string[] = []): Promise<void> {
 
   // Group skills by source (owner/repo) to batch GitHub API calls
   const skillsBySource = new Map<string, Array<{ name: string; entry: SkillLockEntry }>>();
-  let skippedCount = 0;
+  const skipped: SkippedSkill[] = [];
 
   for (const skillName of skillNames) {
     const entry = lock.skills[skillName];
     if (!entry) continue;
 
-    // Only check GitHub-sourced skills with folder hash
-    if (entry.sourceType !== 'github' || !entry.skillFolderHash || !entry.skillPath) {
-      skippedCount++;
+    // Only check skills with folder hash and skill path
+    if (!entry.skillFolderHash || !entry.skillPath) {
+      skipped.push({ name: skillName, reason: getSkipReason(entry), sourceUrl: entry.sourceUrl });
       continue;
     }
 
@@ -432,9 +431,10 @@ async function runCheck(args: string[] = []): Promise<void> {
     skillsBySource.set(entry.source, existing);
   }
 
-  const totalSkills = skillNames.length - skippedCount;
+  const totalSkills = skillNames.length - skipped.length;
   if (totalSkills === 0) {
     console.log(`${DIM}No GitHub skills to check.${RESET}`);
+    printSkippedSkills(skipped);
     return;
   }
 
@@ -480,7 +480,7 @@ async function runCheck(args: string[] = []): Promise<void> {
     }
     console.log();
     console.log(
-      `${DIM}Run${RESET} ${TEXT}npx @codemcp/skills update${RESET} ${DIM}to update all skills${RESET}`
+      `${DIM}Run${RESET} ${TEXT}npx skills update${RESET} ${DIM}to update all skills${RESET}`
     );
   }
 
@@ -488,6 +488,8 @@ async function runCheck(args: string[] = []): Promise<void> {
     console.log();
     console.log(`${DIM}Could not check ${errors.length} skill(s) (may need reinstall)${RESET}`);
   }
+
+  printSkippedSkills(skipped);
 
   // Track telemetry
   track({
@@ -508,9 +510,7 @@ async function runUpdate(): Promise<void> {
 
   if (skillNames.length === 0) {
     console.log(`${DIM}No skills tracked in lock file.${RESET}`);
-    console.log(
-      `${DIM}Install skills with${RESET} ${TEXT}npx @codemcp/skills add <package>${RESET}`
-    );
+    console.log(`${DIM}Install skills with${RESET} ${TEXT}npx skills add <package>${RESET}`);
     return;
   }
 
@@ -519,18 +519,17 @@ async function runUpdate(): Promise<void> {
 
   // Find skills that need updates by checking GitHub directly
   const updates: Array<{ name: string; source: string; entry: SkillLockEntry }> = [];
-  let checkedCount = 0;
+  const skipped: SkippedSkill[] = [];
 
   for (const skillName of skillNames) {
     const entry = lock.skills[skillName];
     if (!entry) continue;
 
-    // Only check GitHub-sourced skills with folder hash
-    if (entry.sourceType !== 'github' || !entry.skillFolderHash || !entry.skillPath) {
+    // Only check skills with folder hash and skill path
+    if (!entry.skillFolderHash || !entry.skillPath) {
+      skipped.push({ name: skillName, reason: getSkipReason(entry), sourceUrl: entry.sourceUrl });
       continue;
     }
-
-    checkedCount++;
 
     try {
       const latestHash = await fetchSkillFolderHash(entry.source, entry.skillPath, token);
@@ -543,8 +542,11 @@ async function runUpdate(): Promise<void> {
     }
   }
 
+  const checkedCount = skillNames.length - skipped.length;
+
   if (checkedCount === 0) {
     console.log(`${DIM}No skills to check.${RESET}`);
+    printSkippedSkills(skipped);
     return;
   }
 
@@ -586,8 +588,9 @@ async function runUpdate(): Promise<void> {
     }
 
     // Use skills CLI to reinstall with -g -y flags
-    const result = spawnSync('npx', ['-y', '@codemcp/skills', 'add', installUrl, '-g', '-y'], {
+    const result = spawnSync('npx', ['-y', 'skills', 'add', installUrl, '-g', '-y'], {
       stdio: ['inherit', 'pipe', 'pipe'],
+      shell: process.platform === 'win32',
     });
 
     if (result.status === 0) {
@@ -689,24 +692,6 @@ async function main(): Promise<void> {
     case 'upgrade':
       runUpdate();
       break;
-    case 'mcp': {
-      if (!restArgs[0] || restArgs[0] === '--help' || restArgs[0] === '-h') {
-        showMcpHelp();
-        break;
-      }
-      const subcommand = restArgs[0];
-      const mcpArgs = restArgs.slice(1);
-
-      if (subcommand === 'setup') {
-        showLogo();
-        const options = parseMcpOptions(mcpArgs);
-        await runMcpSetup(options);
-      } else {
-        console.error(`Unknown mcp subcommand: ${subcommand}`);
-        showMcpHelp();
-      }
-      break;
-    }
     case '--help':
     case '-h':
       showHelp();
@@ -718,7 +703,7 @@ async function main(): Promise<void> {
 
     default:
       console.log(`Unknown command: ${command}`);
-      console.log(`Run ${BOLD}npx @codemcp/skills --help${RESET} for usage.`);
+      console.log(`Run ${BOLD}skills --help${RESET} for usage.`);
   }
 }
 
