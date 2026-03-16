@@ -11,39 +11,8 @@ export type {
   ValidationError,
   ValidationWarning,
   LoadResult,
-  RegistryState,
-  McpClientType,
-  McpConfig,
-  McpServerConfig,
-  OpenCodeConfig,
-  OpenCodeMcpServerConfig,
-  McpServerDependency,
-  McpParameterSpec,
-  McpDependencyCheckResult,
-  McpDependencyInfo,
-  ParameterValues
+  RegistryState
 } from "./types.js";
-
-export type {
-  SkillsMcpServerConfig,
-  ToolPermission,
-  ToolPermissions,
-  SkillsMcpAgentConfig,
-  GeneratorOptions,
-  GeneratedConfig,
-  GeneratorMetadata,
-  ConfigGenerator
-} from "./config-generators.js";
-
-export { ConfigGeneratorRegistry } from "./config-generators.js";
-
-export {
-  GitHubCopilotGenerator,
-  KiroGenerator,
-  OpenCodeMcpGenerator,
-  OpenCodeAgentGenerator,
-  VsCodeGenerator
-} from "./generators/index.js";
 
 export { parseSkill, parseSkillContent } from "./parser.js";
 export { validateSkill } from "./validator.js";
@@ -54,10 +23,3 @@ export {
   getAllowedSkillsFromProject,
   getAllowedSkillsFromAgentskills
 } from "./skills-lock.js";
-export {
-  McpConfigAdapterRegistry,
-  StandardMcpConfigAdapter,
-  OpenCodeConfigAdapter,
-  VsCodeConfigAdapter
-} from "./mcp-config-adapters.js";
-export type { McpConfigAdapter } from "./mcp-config-adapters.js";

@@ -7,7 +7,7 @@ import type {
   McpServerConfig,
   SkillsMcpAgentConfig,
   SkillsMcpServerConfig,
-} from '@codemcp/skills-core';
+} from '@codemcp/skills-core/mcp';
 import {
   McpConfigAdapterRegistry,
   ConfigGeneratorRegistry,
@@ -16,7 +16,7 @@ import {
   OpenCodeMcpGenerator,
   OpenCodeAgentGenerator,
   VsCodeGenerator,
-} from '@codemcp/skills-core';
+} from '@codemcp/skills-core/mcp';
 
 /**
  * Type mapping from simplified agent names to MCP client types

@@ -10,7 +10,7 @@ import {
   OpenCodeMcpGenerator,
   OpenCodeAgentGenerator,
   SkillsMcpAgentConfig
-} from "../index.js";
+} from "../mcp.js";
 
 const baseConfig: SkillsMcpAgentConfig = {
   id: "skills-mcp",

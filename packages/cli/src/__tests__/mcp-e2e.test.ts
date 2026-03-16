@@ -10,7 +10,7 @@ import {
   generateSkillsMcpAgent,
 } from '../mcp-configurator.ts';
 import { parseMcpOptions } from '../mcp.ts';
-import type { McpConfig } from '@codemcp/skills-core';
+import type { McpConfig } from '@codemcp/skills-core/mcp';
 
 describe('MCP Setup E2E Integration Tests', () => {
   let tempDir: string;

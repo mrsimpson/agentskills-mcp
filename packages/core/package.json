@@ -16,6 +16,10 @@
     "./install": {
       "import": "./dist/install.js",
       "types": "./dist/install.d.ts"
+    },
+    "./mcp": {
+      "import": "./dist/mcp.js",
+      "types": "./dist/mcp.d.ts"
     }
   },
   "files": [
