@@ -6,17 +6,7 @@ export default defineConfig({
     api: 'src/api.ts',
   },
   format: ['esm'],
-  dts: {
-    // Only generate type declarations for the API (not the CLI binary)
-    entry: { api: 'src/api.ts' },
-    // @codemcp/skills-core is a published dependency of @codemcp/skills,
-    // so its types are available to consumers as a transitive dep.
-    resolve: false,
-    compilerOptions: {
-      allowImportingTsExtensions: true,
-      types: ['node'],
-    },
-  },
+  dts: false,
   clean: true,
   bundle: true,
   // Keep CommonJS modules external that don't bundle well with ESM
