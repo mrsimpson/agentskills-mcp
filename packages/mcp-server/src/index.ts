@@ -8,6 +8,25 @@
 // Export the core MCPServer class
 export { MCPServer } from "./server.js";
 
+// Export public API types
+export type {
+  ServerCapabilities,
+  ToolDefinition,
+  ToolInputSchema,
+  ToolCallContent,
+  ToolCallSuccess,
+  ToolCallError,
+  ToolCallResult,
+  ResourceDefinition,
+  ResourceTemplate,
+  ResourceTemplateParameter,
+  ResourceTemplateInputSchema,
+  ResourceContentItem,
+  ResourceReadSuccess,
+  ResourceReadError,
+  ResourceReadResult
+} from "./types.js";
+
 /**
  * Main MCP server class for Agent Skills
  *
