@@ -24,12 +24,12 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import type {
   ServerCapabilities,
-  ToolDefinition,
-  ToolCallResult,
-  ResourceDefinition,
+  Tool,
+  CallToolResult,
+  Resource,
   ResourceTemplate,
-  ResourceReadResult
-} from "./types.js";
+  ReadResourceResult
+} from "@modelcontextprotocol/sdk/types.js";
 
 /**
  * MCPServer - Main server class for Agent Skills MCP integration
@@ -291,7 +291,7 @@ ${skillList}
    *
    * @returns Array of tool definitions
    */
-  getTools(): ToolDefinition[] {
+  getTools(): Tool[] {
     return [
       {
         name: "use_skill",
@@ -327,7 +327,7 @@ ${skillList}
   async callTool(
     toolName: string,
     args: Record<string, unknown>
-  ): Promise<ToolCallResult> {
+  ): Promise<CallToolResult | { isError: true; error: string }> {
     try {
       if (toolName === "use_skill") {
         return await this.handleUseSkillTool(args);
@@ -440,7 +440,7 @@ ${skillList}
    *
    * @returns Array of resource definitions
    */
-  getResources(): ResourceDefinition[] {
+  getResources(): Resource[] {
     return this.getResourcesList();
   }
 
@@ -465,7 +465,9 @@ ${skillList}
    * @param uri - Resource URI
    * @returns Resource content
    */
-  async readResource(uri: string): Promise<ResourceReadResult> {
+  async readResource(
+    uri: string
+  ): Promise<ReadResourceResult | { isError: true; error: string }> {
     try {
       return await this.handleReadResource(uri);
     } catch (error) {

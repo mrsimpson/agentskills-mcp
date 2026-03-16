@@ -8,24 +8,15 @@
 // Export the core MCPServer class
 export { MCPServer } from "./server.js";
 
-// Export public API types
+// Re-export MCP SDK protocol types used in the public API
 export type {
   ServerCapabilities,
-  ToolDefinition,
-  ToolInputSchema,
-  ToolCallContent,
-  ToolCallSuccess,
-  ToolCallError,
-  ToolCallResult,
-  ResourceDefinition,
+  Tool,
+  CallToolResult,
+  Resource,
   ResourceTemplate,
-  ResourceTemplateParameter,
-  ResourceTemplateInputSchema,
-  ResourceContentItem,
-  ResourceReadSuccess,
-  ResourceReadError,
-  ResourceReadResult
-} from "./types.js";
+  ReadResourceResult
+} from "@modelcontextprotocol/sdk/types.js";
 
 /**
  * Main MCP server class for Agent Skills
