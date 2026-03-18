@@ -1,6 +1,6 @@
 {
   "name": "@codemcp/skills",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Command-line interface for Agent Skills management",
   "type": "module",
   "publishConfig": {
