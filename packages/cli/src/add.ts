@@ -2,7 +2,7 @@ import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { existsSync } from 'fs';
 import { homedir } from 'os';
-import { sep } from 'path';
+import { sep, relative } from 'path';
 import { parseSource, getOwnerRepo, parseOwnerRepo, isRepoPrivate } from './source-parser.ts';
 import { searchMultiselect, cancelSymbol } from './prompts/search-multiselect.ts';
 
@@ -162,6 +162,17 @@ function shortenPath(fullPath: string, cwd: string): string {
     return '.' + fullPath.slice(cwd.length);
   }
   return fullPath;
+}
+
+/**
+ * Convert an absolute local path to a relative path suitable for storage in
+ * the project lock file (skills-lock.json).  The result always starts with
+ * "./" or "../" so that source-parser.ts recognises it as a local path when
+ * the lock file is later read by the install command.
+ */
+function toRelativeLocalPath(cwd: string, absolutePath: string): string {
+  const rel = relative(cwd, absolutePath);
+  return rel.startsWith('.') ? rel : './' + rel;
 }
 
 /**
@@ -1426,7 +1437,11 @@ export async function runAdd(args: string[], options: AddOptions = {}): Promise<
             await addSkillToLocalLock(
               skill.name,
               {
-                source: lockSource || parsed.url,
+                source:
+                  lockSource ||
+                  (parsed.type === 'local'
+                    ? toRelativeLocalPath(cwd, parsed.url)
+                    : parsed.url),
                 sourceType: parsed.type,
                 computedHash,
               },
