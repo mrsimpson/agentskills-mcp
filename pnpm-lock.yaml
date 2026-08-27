@@ -109,8 +109,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.1
       pacote:
-        specifier: 21.3.1
-        version: 21.3.1
+        specifier: 21.5.1
+        version: 21.5.1
       simple-git:
         specifier: ^3.27.0
         version: 3.32.3
@@ -167,8 +167,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.1
       pacote:
-        specifier: 21.3.1
-        version: 21.3.1
+        specifier: 21.5.1
+        version: 21.5.1
     devDependencies:
       '@types/js-yaml':
         specifier: ^4.0.9
@@ -224,8 +224,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.1
       pacote:
-        specifier: 21.3.1
-        version: 21.3.1
+        specifier: 21.5.1
+        version: 21.5.1
       zod:
         specifier: 4.3.6
         version: 4.3.6
@@ -791,6 +791,10 @@ packages:
   '@eslint/plugin-kit@0.4.1':
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@gar/promise-retry@1.0.3':
+    resolution: {integrity: sha512-GmzA9ckNokPypTg10pgpeHNQe7ph+iIKKmhKu3Ob9ANkswreCx7R3cKmY781K8QK3AqVL3xVh9A42JvIAbkkSA==}
+    engines: {node: ^20.17.0 || >=22.9.0}
 
   '@hono/node-server@1.19.9':
     resolution: {integrity: sha512-vHL6w3ecZsky+8P5MD+eFfaGTyCeOHUIFYMGpQGbrBTSmNNoxv0if69rEZ5giu36weC5saFuznL411gRX7bJDw==}
@@ -2427,6 +2431,7 @@ packages:
   eslint@9.39.2:
     resolution: {integrity: sha512-LEyamqS7W5HB3ujJyvi0HQK/dtVINZvd5mAAp9eT5S/ujByGjiZLCzPcHVzuXbpJDJF/cxwHlfceVUDZ2lnSTw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -3273,8 +3278,8 @@ packages:
     resolution: {integrity: sha512-gFL35q7kbE/zBaPA3UKhp2vSzcPYx2ecbYuwv1ucE9Il6IIgBDweBlH8D68UFGZic2MkllKa2KHCfC1IQBQUYA==}
     engines: {node: '>=12'}
 
-  pacote@21.3.1:
-    resolution: {integrity: sha512-O0EDXi85LF4AzdjG74GUwEArhdvawi/YOHcsW6IijKNj7wm8IvEWNF5GnfuxNpQ/ZpO3L37+v8hqdVh8GgWYhg==}
+  pacote@21.5.1:
+    resolution: {integrity: sha512-KvcJ9iy3crysCsgqc4+PknH/w6jkrp8JN36mpZBPwNaDRwTfMZD37YzRazNstiZUOhuF5pno9f78n9mEJBavwg==}
     engines: {node: ^20.17.0 || >=22.9.0}
     hasBin: true
 
@@ -4651,6 +4656,8 @@ snapshots:
     dependencies:
       '@eslint/core': 0.17.0
       levn: 0.4.1
+
+  '@gar/promise-retry@1.0.3': {}
 
   '@hono/node-server@1.19.9(hono@4.12.0)':
     dependencies:
@@ -7343,8 +7350,9 @@ snapshots:
 
   package-name-regex@2.0.6: {}
 
-  pacote@21.3.1:
+  pacote@21.5.1:
     dependencies:
+      '@gar/promise-retry': 1.0.3
       '@npmcli/git': 7.0.1
       '@npmcli/installed-package-contents': 4.0.0
       '@npmcli/package-json': 7.0.5
@@ -7358,7 +7366,6 @@ snapshots:
       npm-pick-manifest: 11.0.3
       npm-registry-fetch: 19.1.1
       proc-log: 6.1.0
-      promise-retry: 2.0.1
       sigstore: 4.1.0
       ssri: 13.0.1
       tar: 7.5.9
