@@ -24,7 +24,7 @@
   },
   "engines": {
     "node": ">=22.0.0",
-    "pnpm": ">=9.0.0"
+    "pnpm": ">=10.34.5"
   },
   "type": "module",
   "scripts": {
@@ -74,7 +74,7 @@
     "vitepress-plugin-mermaid": "2.0.17",
     "vitest": "^3.0.3"
   },
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@10.34.5",
   "dependencies": {
     "@codemcp/skills-core": "workspace:*",
     "@codemcp/skills-server": "workspace:*"
