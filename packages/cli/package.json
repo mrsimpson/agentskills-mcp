@@ -46,19 +46,19 @@
     "simple-git": "^3.27.0"
   },
   "devDependencies": {
-    "@clack/prompts": "^0.11.0",
+    "@clack/prompts": "0.11.0",
     "@codemcp/skills-core": "workspace:*",
     "@types/node": "22.19.11",
-    "dts-bundle-generator": "^9.5.1",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "obuild": "^0.4.22",
-    "picocolors": "^1.1.1",
+    "dts-bundle-generator": "9.5.1",
+    "husky": "9.1.7",
+    "lint-staged": "16.2.7",
+    "obuild": "0.4.31",
+    "picocolors": "1.1.1",
     "prettier": "3.8.1",
-    "tsup": "^8.0.0",
+    "tsup": "8.5.1",
     "typescript": "5.9.3",
     "vitest": "^4.0.17",
-    "xdg-basedir": "^5.1.0"
+    "xdg-basedir": "5.1.0"
   },
   "keywords": [
     "agentskills",
