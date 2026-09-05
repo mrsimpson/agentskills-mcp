@@ -44,16 +44,16 @@
     "pacote": "21.3.1"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.9",
-    "@types/node": "^22.10.7",
+    "@types/js-yaml": "4.0.9",
+    "@types/node": "22.19.11",
     "@types/pacote": "11.1.8",
     "@typescript-eslint/eslint-plugin": "^8.21.0",
     "@typescript-eslint/parser": "^8.21.0",
-    "eslint": "^9.18.0",
-    "eslint-config-prettier": "^10.0.1",
-    "prettier": "^3.4.2",
+    "eslint": "9.39.2",
+    "eslint-config-prettier": "10.1.8",
+    "prettier": "3.8.1",
     "rimraf": "^6.0.1",
-    "typescript": "^5.7.3",
+    "typescript": "5.9.3",
     "typescript-eslint": "8.21.0",
     "vitest": "^3.0.3"
   },
