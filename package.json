@@ -48,7 +48,7 @@
   "devDependencies": {
     "@braintree/sanitize-url": "7.1.2",
     "@eslint/js": "9.39.5",
-    "@swc/core": "1.15.11",
+    "@swc/core": "1.16.2",
     "@tsconfig/node22": "22.0.6",
     "@tsconfig/strictest": "2.0.8",
     "@types/eslint-config-prettier": "6.11.3",
