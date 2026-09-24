@@ -55,7 +55,7 @@
     "rimraf": "6.1.3",
     "typescript": "5.9.3",
     "typescript-eslint": "8.21.0",
-    "vitest": "^3.0.3"
+    "vitest": "^4.0.0"
   },
   "keywords": [
     "agentskills",
