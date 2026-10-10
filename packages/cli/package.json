@@ -48,7 +48,7 @@
   "devDependencies": {
     "@clack/prompts": "0.11.0",
     "@codemcp/skills-core": "workspace:*",
-    "@types/node": "22.19.11",
+    "@types/node": "22.20.5",
     "dts-bundle-generator": "9.5.1",
     "husky": "9.1.7",
     "lint-staged": "16.2.7",
